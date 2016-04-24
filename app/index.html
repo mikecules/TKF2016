@@ -8,38 +8,15 @@
 	<meta name="description" content="TKF 2016 D3 Web Visualizations">
 	<meta name="keywords" content="webgl,d3,visualization,pong">
 
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="styles/app.css">
 
 	</head>
-	<body>
+	<body data-ng-app="app">
         <nav></nav>
-		<main>
-            <!-- Main -->
-
-            <section>
-                <header></header>
-            </section>
-
+		<main data-ng-view>
         </main>
         <footer>
-            <!-- Copyright -->
-            <ul class="copyright">
-                <li>Application Code (mostly) Written by Michael Moncada</li>
-                <li>
-                    <p>
-                        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
-                        <br />
-                        <br />
-                        <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">TKF 2016 :: Visualizing Data</span> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
-                        <br />
-                        <br />
-                        If this work is used in a commerical context the provider of the content must obtain the appropriate permission from any 3rd party images used in this instructional material.
-                        <br />
-                        <br />
-                        Based on a work at <a xmlns:dct="http://purl.org/dc/terms/" href="http://learn.npcomplete.me/webgl" rel="dct:source">http://learn.npcomplete.me/webgl</a>.
-                    </p>
-                </li>
-            </ul>
         </footer>
 
 
@@ -49,13 +26,18 @@
         <script src="scripts/vendor-libs/angular/angular.js"></script>
         <script src="scripts/vendor-libs/angular/angular-route.js"></script>
 
+        <!-- Angular App Main Application -->
+        <script src="scripts/app/app.js"></script>
+
+        <!-- WebGL AngularJS Service -->
+        <script src="scripts/app/services/webGLUtilityModule.js"></script>
+
 
         <!-- Angular Controllers -->
         <script src="scripts/app/controllers/vis-main-controller.js"></script>
         <script src="scripts/app/controllers/pong-controller.js"></script>
 
-        <!-- WebGL AngularJS Service -->
-        <script src="scripts/app/services/webGLUtilityModule.js"></script>
+
 
 
         <script src="scripts/vendor-libs/jquery/jquery-2.2.3.min.js"></script>
@@ -67,13 +49,17 @@
         <script src="scripts/vendor-libs/d3-tip/d3-tip.js"></script>
 
 
-		<!-- Angular App Main Application -->
-		<script src="scripts/app/app.js"></script>
 
 
-		<!-- WebGL Controller - contains JS WebGL Examples -->
+
+		<!-- Main App Controller -->
 		<script src="scripts/app/controllers/vis-main-controller.js"></script>
         <script src="scripts/app/controllers/pong-controller.js"></script>
+
+        <!-- World Map Directive -->
+        <script src="scripts/app/directives/visual-map-directive.js"></script>
+
+
 
         <script src="scripts/app/game/pong.js"></script>
         <script src="scripts/app/game/pong-robot.js"></script>
