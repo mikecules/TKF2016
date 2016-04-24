@@ -54,6 +54,8 @@
                         /* Constants */
                         var AXIS_TICK_SIZE = 4,
                             SVG_MAP_ASPECT_RATIO = 2250/3000,
+                            MAP_LONGITUDE_DOMAIN = [-180, 180],
+                            MAP_LATITUDE_DOMAIN = [90, -90],
                             MONTHS_LOOKUP = [
                                 'January', 'February', 'March',
                                 'April', 'May', 'June', 'July',
@@ -112,15 +114,13 @@
                                 return;
                             }
 
-                            _scales.x.domain(d3.extent(_salesData, function(d) {
-                                return d.dateStart;
-                            }));
+                            _scales.x.domain(MAP_LONGITUDE_DOMAIN); // 0, width
 
                             var maxYPoint = d3.max(_salesData, function(d) {
                                 return d.count;
                             });
 
-                            _scales.y.domain([0, maxYPoint]);
+                            _scales.y.domain(MAP_LATITUDE_DOMAIN); // 0, height
 
                             // Define line drawing function
                             _lineFn
