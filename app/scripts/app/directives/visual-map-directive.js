@@ -14,10 +14,10 @@
 
                         var _ctrl = this,
                             _margin = {
-                                top: 30,
-                                right: 30,
-                                bottom: 75,
-                                left: 30
+                                top: 400,
+                                right: 10,
+                                bottom: 30,
+                                left: 10
                             },
                             _mapData = null,
                             _$element = null,
@@ -67,8 +67,8 @@
                             var drawingWidth = _elDimensions.width - _margin.left - _margin.right,
                                 drawingHeight = _elDimensions.height - _margin.top - _margin.bottom;
 
-                            _scales.x.range([0, _elDimensions.width]);
-                            _scales.y.range([0, _elDimensions.width * SVG_MAP_ASPECT_RATIO]);
+                            _scales.x.range([_margin.left, _elDimensions.width - _margin.right]);
+                            _scales.y.range([_margin.top, _elDimensions.width * SVG_MAP_ASPECT_RATIO - _margin.bottom]);
 
 
                             console.log(_elDimensions);
@@ -110,15 +110,15 @@
                             cityPoints
                                 .attr('cx', function(d) {
                                     console.log('Long:', d.Long, _scales.x(d.Long));
-                                    return _scales.x(d.Long) * 3000/_elDimensions.width;
+                                    return _scales.x(d.Long);
                                 })
                                 .attr('cy', function(d) {
                                     console.log('Lat: ', d.Lat, _scales.y(d.Lat));
-                                    return _scales.y(d.Lat) * 2250/+_svg.attr('height');
+                                    return _scales.y(d.Lat);
                                 })
                                 .attr('r', 0)
                                 .transition()
-                                .attr('r', 5);
+                                .attr('r', 2);
 
                             cityPoints.exit().remove();
 
@@ -152,13 +152,13 @@
 
                             if (!_svg) {
                                 // SVG Object initialization...
-                                _svg = d3.select('svg.world-map');
+                                _svg = d3.select('#world-map-overlay');
 
                                 //_svg.attr('viewBox', '0 0 ' + _elDimensions.width + ' ' + _elDimensions.height);
 
                                 _groups.graphCanvas = _svg.append('g')
                                     .classed('graph-canvas', true)
-                                    .attr('transform', 'translate(' + -30 + ',' + 160+ ')');
+                                    .attr('transform', 'translate(' + 0 + ',' + 0 + ')');
 
                               _groups.graphCanvas.call(_tipFn);
 
