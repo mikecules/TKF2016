@@ -5,7 +5,8 @@
   angular.module('app')
     .controller('mainCtrl', ['$scope', function($scope) {
 
-      var _mapData = {},
+      var _ctrl = this,
+          _mapData = {},
           _dataRelDir = 'data/toronto-map/',
           _dataSets = [
             {
@@ -47,7 +48,7 @@
 
           if (++rsCount === _dataSets.length) {
             $scope.$applyAsync(function() {
-              $scope.mapData = _mapData;
+              _ctrl.mapData = _mapData;
               console.log($scope.mapData);
             });
           }

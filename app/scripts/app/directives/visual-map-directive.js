@@ -13,37 +13,21 @@
                     controller: ['$scope', '$window', function($scope, $window) {
 
                         var _ctrl = this,
-                            _margin = {
-                                top: 400,
-                                right: 10,
-                                bottom: 30,
-                                left: 10
-                            },
                             _mapData = null,
                             _$element = null,
                             _elDimensions = {
                                 width: 0,
                                 height: 0
                             },
-                            _line = null,
-                            _lineFn = null,
                             _tipFn = null,
-                            _scales = {
-                                x: null,
-                                y: null
-                            },
                             _svg = null,
+                            _projection = null,
                             _groups = {
-                                title: null,
-                                xAxis: null,
-                                yAxis: null,
-                                graphCanvas: null
+                                mapCanvas: null,
                             };
 
                         /* Constants */
-                        var SVG_MAP_ASPECT_RATIO = 2250/3000,
-                            MAP_LONGITUDE_DOMAIN = [-180, 180],
-                            MAP_LATITUDE_DOMAIN = [90, -90];
+                        var SVG_MAP_ASPECT_RATIO = 1/1.33;
 
                         function _debounce(f, timeInMS) {
 
@@ -62,14 +46,7 @@
 
                         function _updateGraphAttrs() {
                             _elDimensions.width = _$element.parent().outerWidth();
-                            _elDimensions.height = _$element.parent().outerHeight();
-
-                            var drawingWidth = _elDimensions.width - _margin.left - _margin.right,
-                                drawingHeight = _elDimensions.height - _margin.top - _margin.bottom;
-
-                            _scales.x.range([_margin.left, _elDimensions.width - _margin.right]);
-                            _scales.y.range([_margin.top, _elDimensions.width * SVG_MAP_ASPECT_RATIO - _margin.bottom]);
-
+                            _elDimensions.height = Math.round(_elDimensions.width * SVG_MAP_ASPECT_RATIO);
 
                             console.log(_elDimensions);
                         }
@@ -83,19 +60,16 @@
 
                             _svg
                                 .attr('width', _elDimensions.width)
-                                .attr('height', Math.round(_elDimensions.width * SVG_MAP_ASPECT_RATIO));
+                                .attr('height', _elDimensions.height);
 
                             if (angular.isDefined(mapData)) {
                                 _mapData = mapData;
                             }
 
 
-                            _scales.x.domain(MAP_LONGITUDE_DOMAIN); // 0, width
-                            _scales.y.domain(MAP_LATITUDE_DOMAIN); // 0, height
-
 
                             // Draw points
-                            var cityPoints = _groups.graphCanvas.selectAll('circle.data-point')
+                            var cityPoints = _groups.mapCanvas.selectAll('circle.data-point')
                                 .data(_mapData.mapPoints);
 
                             cityPoints.enter().append('circle')
@@ -109,12 +83,12 @@
 
                             cityPoints
                                 .attr('cx', function(d) {
-                                    console.log('Long:', d.Long, _scales.x(d.Long));
-                                    return _scales.x(d.Long);
+                                    console.log('Long:', d.Long);
+                                    return _projection([d.Long, d.Lat])[0];
                                 })
                                 .attr('cy', function(d) {
-                                    console.log('Lat: ', d.Lat, _scales.y(d.Lat));
-                                    return _scales.y(d.Lat);
+                                    console.log('Lat: ', d.Lat);
+                                    return _projection([d.Long, d.Lat])[1];
                                 })
                                 .attr('r', 0)
                                 .transition()
@@ -128,24 +102,17 @@
 
                             _$element = $element;
 
-                            _scales.x = d3.scale.linear();
-                            _scales.y = d3.scale.linear();
-
-                            _lineFn = d3.svg.line();
-                            //.interpolate('monotone');
-
-
                             //Mouseover tip
                             _tipFn = d3.tip()
                                 .direction('n')
-                                .attr('class', 'd3-tip')
+                                .attr('class', 'd3-tip animate')
                                 .offset([-10, 0])
                                 .html(function(d) {
                                   console.log(d);
-                                    return '<strong>' + d.Institution + '</strong>' +
-                                        '<p>' + d.Address + '</p>' +
-                                        '<p>Lat: ' + d.Lat + '<br />' +
-                                        'Long: ' + d.Long + '</p>';
+                                    return '<strong>' + d.Institution + '</strong> <hr />' +
+                                        '<p style="text-align: left"><strong>Latitude</strong>: ' + d.Lat + '<br />' +
+                                        '<strong>Longitude</strong>: ' + d.Long + '</p>' +
+                                        '<p style="text-align: left"><strong>Number of Records</strong>: ' + d.records + '</p>';
                                 });
 
                             _updateGraphAttrs();
@@ -154,13 +121,59 @@
                                 // SVG Object initialization...
                                 _svg = d3.select('#world-map-overlay');
 
-                                //_svg.attr('viewBox', '0 0 ' + _elDimensions.width + ' ' + _elDimensions.height);
-
-                                _groups.graphCanvas = _svg.append('g')
-                                    .classed('graph-canvas', true)
+                                _groups.mapCanvas = _svg.append('g')
+                                    .classed('map-canvas', true)
                                     .attr('transform', 'translate(' + 0 + ',' + 0 + ')');
 
-                              _groups.graphCanvas.call(_tipFn);
+                                _projection = d3.geo.eckert5()
+                                    .scale(100 * _elDimensions.width/555)
+                                    .translate([_elDimensions.width / 2, _elDimensions.height / 3])
+                                    .precision(.2);
+
+                                var path = d3.geo.path()
+                                    .projection(_projection);
+
+                                var graticule = d3.geo.graticule();
+
+
+                                _svg.append('defs').append('path')
+                                    .datum({type: 'Sphere'})
+                                    .attr('id', 'sphere')
+                                    .attr('d', path);
+
+                              _groups.mapCanvas.append('use')
+                                    .attr('class', 'stroke')
+                                    .attr('xlink:href', '#sphere');
+
+                              _groups.mapCanvas.append('use')
+                                    .attr('class', 'fill')
+                                    .attr('xlink:href', '#sphere');
+
+
+
+                              /*_groups.mapCanvas.append('path')
+                                  .datum(graticule)
+                                  .attr('class', 'graticule')
+                                  .attr('d', path);*/
+
+
+                                d3.json('data/toronto-map/world-50m.json', function(error, world) {
+                                    if (error) throw error;
+
+                                  _groups.mapCanvas.insert('path', '.graticule')
+                                        .datum(topojson.feature(world, world.objects.land))
+                                        .attr('class', 'land')
+                                        .attr('d', path);
+
+                                  _groups.mapCanvas.insert('path', '.graticule')
+                                        .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
+                                        .attr('class', 'boundary')
+                                        .attr('d', path);
+                                });
+
+
+
+                              _groups.mapCanvas.call(_tipFn);
 
 
                                 // Listeners...
@@ -178,19 +191,44 @@
                                 }, 350);
 
                                 resize(debouncedUpdate);
-                                debouncedUpdate();
 
-                                $scope.$on('$destroy', function() {
-                                    var removeEvent =  $window.detachEvent ?
-                                        function(f) {
-                                            $window.detachEvent('onresize', f);
-                                        } :
-                                        function(f) {
-                                            $window.removeEventListener('resize', f);
-                                        };
 
-                                    removeEvent(debouncedUpdate);
-                                });
+                              var zoom = d3.behavior.zoom()
+                                  .on('zoom',function() {
+                                    var zoomScale =  Math.max(0.5, Math.min(8, d3.event.scale));
+
+                                    _groups.mapCanvas
+                                        .transition()
+                                        .duration(10)
+                                        .attr('transform','translate(' +
+                                        d3.event.translate.join(',') +
+                                        ") scale(" +
+                                            zoomScale +
+                                        ")");
+console.log(zoomScale, d3.event.translate);
+                                    _groups.mapCanvas.selectAll('path.graticule')
+                                        .attr('d', path.projection(_projection));
+                                  });
+
+                              _svg.call(zoom);
+
+                              $scope.resetZoomPan = function() {
+                                zoom.scale(1);
+                                zoom.translate([0, 0]);
+                                _groups.mapCanvas.transition().attr('transform', 'translate(0,0) scale(1,1)');
+                              };
+
+                              $scope.$on('$destroy', function() {
+                                  var removeEvent =  $window.detachEvent ?
+                                      function(f) {
+                                          $window.detachEvent('onresize', f);
+                                      } :
+                                      function(f) {
+                                          $window.removeEventListener('resize', f);
+                                      };
+
+                                  removeEvent(debouncedUpdate);
+                              });
 
                             }
 

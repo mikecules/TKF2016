@@ -1,4 +1,5 @@
 <div class="world-map-container">
     <h1>World Map Visualization</h1>
-    <visual-map data-map-data="mapData"></visual-map>
+    <h2 data-ng-if="! mainCtrl.mapData">Initializing World Map...</h2>
+    <visual-map data-ng-show="mainCtrl.mapData" data-map-data="mainCtrl.mapData"></visual-map>
 </div>
