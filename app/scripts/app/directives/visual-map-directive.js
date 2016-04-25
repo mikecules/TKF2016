@@ -6,8 +6,7 @@
                 return {
                     restrict: 'EA',
                     scope: {
-                        cityData: '=',
-                        routeData: '='
+                        mapData: '='
                     },
                     replace: true,
                     templateUrl: 'partials/directives/world-map.html',
@@ -20,28 +19,18 @@
                                 bottom: 75,
                                 left: 30
                             },
-                            _salesData = null,
+                            _mapData = null,
                             _$element = null,
                             _elDimensions = {
                                 width: 0,
                                 height: 0
                             },
                             _line = null,
-                            _lineArea = null,
-                            _lineAreaPath = null,
                             _lineFn = null,
                             _tipFn = null,
-                            _axis = {
-                                x: null,
-                                y: null
-                            },
                             _scales = {
                                 x: null,
                                 y: null
-                            },
-                            _scaleTicks = {
-                                x: 12,
-                                y: 4
                             },
                             _svg = null,
                             _groups = {
@@ -52,16 +41,9 @@
                             };
 
                         /* Constants */
-                        var AXIS_TICK_SIZE = 4,
-                            SVG_MAP_ASPECT_RATIO = 2250/3000,
+                        var SVG_MAP_ASPECT_RATIO = 2250/3000,
                             MAP_LONGITUDE_DOMAIN = [-180, 180],
-                            MAP_LATITUDE_DOMAIN = [90, -90],
-                            MONTHS_LOOKUP = [
-                                'January', 'February', 'March',
-                                'April', 'May', 'June', 'July',
-                                'August', 'September', 'October',
-                                'November', 'December'
-                            ];
+                            MAP_LATITUDE_DOMAIN = [90, -90];
 
                         function _debounce(f, timeInMS) {
 
@@ -85,17 +67,14 @@
                             var drawingWidth = _elDimensions.width - _margin.left - _margin.right,
                                 drawingHeight = _elDimensions.height - _margin.top - _margin.bottom;
 
-                            _scales.x.range([0, drawingWidth]);
-                            _scales.y.range([drawingHeight, 0]);
-
-                            _axis.x.scale(_scales.x);
-                            _axis.y.scale(_scales.y);
+                            _scales.x.range([0, _elDimensions.width]);
+                            _scales.y.range([0, _elDimensions.width * SVG_MAP_ASPECT_RATIO]);
 
 
                             console.log(_elDimensions);
                         }
 
-                        _ctrl.render = function(salesData) {
+                        _ctrl.render = function(mapData) {
 
                             if (!_svg) {
                                 throw new Error('Could not find associated SVG for line graph!\nAre you sure you initialized it?');
@@ -106,56 +85,20 @@
                                 .attr('width', _elDimensions.width)
                                 .attr('height', Math.round(_elDimensions.width * SVG_MAP_ASPECT_RATIO));
 
-                            if (angular.isDefined(salesData)) {
-                                _salesData = salesData;
+                            if (angular.isDefined(mapData)) {
+                                _mapData = mapData;
                             }
 
-                            if (!angular.isArray(_salesData)) {
-                                return;
-                            }
 
                             _scales.x.domain(MAP_LONGITUDE_DOMAIN); // 0, width
-
-                            var maxYPoint = d3.max(_salesData, function(d) {
-                                return d.count;
-                            });
-
                             _scales.y.domain(MAP_LATITUDE_DOMAIN); // 0, height
-
-                            // Define line drawing function
-                            _lineFn
-                                .x(function(d) {
-                                    return _scales.x(d.dateStart);
-                                })
-                                .y(function(d) {
-                                    return _scales.y(d.count);
-                                });
-
-
-
-                            // Define and draw X,Y axis
-                            _axis.x.scale(_scales.x);
-                            _axis.y.scale(_scales.y);
-
-                            _groups.xAxis.attr('transform', 'translate(0,' +
-                                    (_elDimensions.height - _margin.top - _margin.bottom) + ')')
-                                //.call(_axis.x)
-                                .selectAll('text')
-                                .attr('y', 9)
-                                .attr('x', 9)
-                                .attr('dy', '.35em')
-                                .attr('transform', 'rotate(45)')
-                                .style('text-anchor', 'start');
-
-                            _groups.yAxis.attr('transform', 'translate(0,0)');
-                                //.call(_axis.y);
 
 
                             // Draw points
-                            var salesPoints = _groups.graphCanvas.selectAll('circle.data-point')
-                                .data(_salesData);
+                            var cityPoints = _groups.graphCanvas.selectAll('circle.data-point')
+                                .data(_mapData.mapPoints);
 
-                            salesPoints.enter().append('circle')
+                            cityPoints.enter().append('circle')
                                 .classed('data-point', true)
                                 .on('mouseover', function(d) {
                                     _tipFn.attr('class', 'd3-tip animate').show(d);
@@ -164,21 +107,20 @@
                                     _tipFn.attr('class', 'd3-tip').hide(d);
                                 });
 
-                            salesPoints
+                            cityPoints
                                 .attr('cx', function(d) {
-                                    return _scales.x(d.dateStart);
+                                    console.log('Long:', d.Long, _scales.x(d.Long));
+                                    return _scales.x(d.Long) * 3000/_elDimensions.width;
                                 })
-                                .attr('cy', function() {
-                                    return _scales.y(0);
+                                .attr('cy', function(d) {
+                                    console.log('Lat: ', d.Lat, _scales.y(d.Lat));
+                                    return _scales.y(d.Lat) * 2250/+_svg.attr('height');
                                 })
                                 .attr('r', 0)
                                 .transition()
-                                .attr('cy', function(d) {
-                                    return _scales.y(d.count);
-                                })
-                                .attr('r', 2);
+                                .attr('r', 5);
 
-                            salesPoints.exit().remove();
+                            cityPoints.exit().remove();
 
                         };
 
@@ -186,24 +128,12 @@
 
                             _$element = $element;
 
-                            _scales.x = d3.time.scale();
+                            _scales.x = d3.scale.linear();
                             _scales.y = d3.scale.linear();
 
                             _lineFn = d3.svg.line();
                             //.interpolate('monotone');
 
-                            _axis.x = d3.svg.axis()
-                                .ticks(_scaleTicks.x)
-                                .tickSize(AXIS_TICK_SIZE)
-                                .outerTickSize(0)
-                                .tickFormat(d3.time.format('%b %e, %Y'))
-                                .orient('bottom');
-
-                            _axis.y = d3.svg.axis()
-                                .ticks(_scaleTicks.y)
-                                .tickSize(AXIS_TICK_SIZE)
-                                .outerTickSize(0)
-                                .orient('left');
 
                             //Mouseover tip
                             _tipFn = d3.tip()
@@ -211,13 +141,11 @@
                                 .attr('class', 'd3-tip')
                                 .offset([-10, 0])
                                 .html(function(d) {
-                                    var saleDate = d.dateStart;
-                                    return '<p><strong>' + d.count + ' ' +
-                                        'sales</strong> made on ' +
-                                        MONTHS_LOOKUP[saleDate.getMonth()] + ' ' +
-                                        saleDate.getDate() + ', ' +
-                                        saleDate.getFullYear() +
-                                        '</p>';
+                                  console.log(d);
+                                    return '<strong>' + d.Institution + '</strong>' +
+                                        '<p>' + d.Address + '</p>' +
+                                        '<p>Lat: ' + d.Lat + '<br />' +
+                                        'Long: ' + d.Long + '</p>';
                                 });
 
                             _updateGraphAttrs();
@@ -230,19 +158,9 @@
 
                                 _groups.graphCanvas = _svg.append('g')
                                     .classed('graph-canvas', true)
-                                    .attr('transform', 'translate(' + _margin.left + ',' + _margin.top + ')');
+                                    .attr('transform', 'translate(' + -30 + ',' + 160+ ')');
 
-                                _groups.graphCanvas.call(_tipFn);
-
-                                _groups.title = _groups.graphCanvas.append('g')
-                                    .classed('title-text-group', true);
-
-
-                                _groups.xAxis = _groups.graphCanvas.append('g')
-                                    .classed('x axis', true);
-
-                                _groups.yAxis = _groups.graphCanvas.append('g')
-                                    .classed('y axis', true);
+                              _groups.graphCanvas.call(_tipFn);
 
 
                                 // Listeners...
@@ -279,22 +197,22 @@
                         };
 
                     }],
-                    link: function(scope, element, attrs, salesLineGraphCtrl) {
+                    link: function(scope, element, attrs, mapCtrl) {
 
                         // Assume salesData is either a function that returns the data or is the data itself...
-                        var salesDataFn = angular.isFunction(scope.salesData) ?
-                            scope.salesData : function() {
-                            return scope.salesData;
+                        var mapDataFn = angular.isFunction(scope.mapData) ?
+                            scope.mapData : function() {
+                            return scope.mapData;
                         };
 
-                        salesLineGraphCtrl.init(element);
+                        mapCtrl.init(element);
 
-                        scope.$watch(salesDataFn, function(newData) {
+                        scope.$watch(mapDataFn, function(newData) {
                             if (!newData) {
                                 return;
                             }
 
-                            salesLineGraphCtrl.render(newData);
+                            mapCtrl.render(newData);
                         });
                     }
                 };
