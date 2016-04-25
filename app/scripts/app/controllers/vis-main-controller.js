@@ -3,10 +3,58 @@
   'use strict';
 
   angular.module('app')
-    .controller('mainCtrl', function() {
+    .controller('mainCtrl', ['$scope', function($scope) {
+
+      var _mapData = {},
+          _dataRelDir = 'data/toronto-map/',
+          _dataSets = [
+            {
+              key: 'mapPoints',
+              file: 'toronto-record-sets.csv'
+            },
+            {
+              key: 'routePoints',
+              file: 'toronto-poly-points.csv',
+              transformationFn: function(d) {
+                var pointIndexMap = {};
+
+                for (var i = 0; i < d.length; i++) {
+                  var point = d[i];
+
+                  if (! angular.isDefined(pointIndexMap[point.Index])) {
+                    pointIndexMap[point.Index] = [];
+                  }
+
+                  pointIndexMap[point.Index].push(point);
+
+                }
+
+                return pointIndexMap;
+
+            }}
+          ];
+
+      var rsCount = 0;
+
+      _dataSets.map(function(dataSet) {
+        d3.csv(_dataRelDir + dataSet.file, function(data) {
+
+          if (! angular.isArray(data) || data.length === 0) {
+            throw new Error('Error retrieving dataset: ' + dataSet.file);
+          }
+
+          _mapData[dataSet.key] = angular.isFunction(dataSet.transformationFn) ? dataSet.transformationFn(data) : data;
+
+          if (++rsCount === _dataSets.length) {
+            $scope.$applyAsync(function() {
+              $scope.mapData = _mapData;
+              console.log($scope.mapData);
+            });
+          }
+
+        });
+      });
 
 
-
-
-  });
+  }]);
 })();
