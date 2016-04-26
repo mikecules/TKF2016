@@ -164,6 +164,10 @@
                   _elDimensions.width = _$element.parent().outerWidth();
                   _elDimensions.height = Math.round(_elDimensions.width * SVG_MAP_ASPECT_RATIO);
 
+                  if (_svg) {
+                    _svg.attr('viewBox', '0 0 ' + _elDimensions.width + ' ' + _elDimensions.height);
+                  }
+
                   console.log(_elDimensions);
                 }
 
@@ -252,7 +256,7 @@
                   _tipFn = d3.tip()
                       .direction('n')
                       .attr('class', 'd3-tip animate')
-                      .offset([-12, 0])
+                      .offset([-15, 0])
                       .html(function(d) {
                         console.log(d);
                         return '<strong>' + d.Institution + '</strong> <hr />' +
