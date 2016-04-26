@@ -120,16 +120,16 @@
                         var zoomScale = Math.max(0.5, Math.min(8, d3.event.scale));
 
                         _groups.mapCanvas
-                            .transition()
-                            .duration(10)
+                            //.transition()
+                            //.duration(10)
                             .attr('transform', 'translate(' +
                                 d3.event.translate.join(',') +
                                 ") scale(" +
                                 zoomScale +
                                 ")");
 
-                        _groups.mapCanvas.selectAll('path.graticule')
-                            .attr('d', path.projection(_projection));
+                        //_groups.mapCanvas.selectAll('path.graticule')
+                        //    .attr('d', path.projection(_projection));
 
                         //_groups.pathCanvas.selectAll('path')
                         //  .attr('d', path.projection(_projection));
