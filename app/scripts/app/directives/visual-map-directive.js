@@ -297,7 +297,7 @@
                     _projection = d3.geo.eckert5()
                         .scale(100 * _elDimensions.width / 555)
                         .translate([_elDimensions.width / 2, _elDimensions.height / 3])
-                        .precision(.2);
+                        .precision(.5);
 
                     _line = d3.svg.line()
                         .x(function(d) {
