@@ -82,6 +82,10 @@ body {
     stroke: #fff;
     stroke-width: .5px;
 }
+g.map-canvas {
+    transform: translate3d(0px, 0px, 0px) scale3d(1, 1, 1);
+    transition: all 0.1s linear;
+}
 
 .tip {
     position: absolute;

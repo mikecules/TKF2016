@@ -120,13 +120,16 @@
                         var zoomScale = Math.max(0.5, Math.min(8, d3.event.scale));
 
                         _groups.mapCanvas
+                            .style('transform', 'translate3d(' +
+                                d3.event.translate[0] +'px,'+  d3.event.translate[1] + 'px'
+                                + ', 0px) ' + ' scale3d(' + zoomScale + ',' + zoomScale + ', 1)');
                             //.transition()
                             //.duration(10)
-                            .attr('transform', 'translate(' +
+                            /*.attr('transform', 'translate(' +
                                 d3.event.translate.join(',') +
                                 ") scale(" +
                                 zoomScale +
-                                ")");
+                                ")");*/
 
                         //_groups.mapCanvas.selectAll('path.graticule')
                         //    .attr('d', path.projection(_projection));
@@ -145,7 +148,9 @@
                   $scope.resetZoomPan = function() {
                     zoom.scale(1);
                     zoom.translate([0, 0]);
-                    _groups.mapCanvas.transition().attr('transform', 'translate(0,0) scale(1,1)');
+                    _groups.mapCanvas.style('transform', 'translate3d(0, 0, 0) ' +
+                        ' scale3d(1, 1, 1)');
+                    //_groups.mapCanvas.transition().attr('transform', 'translate(0,0) scale(1,1)');
                   };
 
                   if (_mapData) {
@@ -291,8 +296,7 @@
                     _svg = d3.select('#world-map-overlay');
 
                     _groups.mapCanvas = _svg.append('g')
-                        .classed('map-canvas', true)
-                        .attr('transform', 'translate(' + 0 + ',' + 0 + ')');
+                        .classed('map-canvas', true);
 
                     _projection = d3.geo.eckert5()
                         .scale(100 * _elDimensions.width / 555)
