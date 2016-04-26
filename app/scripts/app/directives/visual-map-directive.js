@@ -301,10 +301,10 @@
 
                     _line = d3.svg.line()
                         .x(function(d) {
-                          return _projection([d.Longitude, d.Latitude])[0];
+                          return _projection([d.Long, d.Lat])[0];
                         })
                         .y(function(d) {
-                          return _projection([d.Longitude, d.Latitude])[1];
+                          return _projection([d.Long, d.Lat])[1];
                         })
                         .interpolate('basis');
 
