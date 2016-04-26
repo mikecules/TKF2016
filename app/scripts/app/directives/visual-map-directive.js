@@ -34,36 +34,36 @@
                 var SVG_MAP_ASPECT_RATIO = 1 / 1.33;
 
                 // Adapted from http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
-                function _randomColor(){
+                function _randomColor() {
                   var golden_ratio_conjugate = 0.618033988749895;
                   var h = Math.random();
 
-                  var hslToRgb = function (h, s, l){
+                  var hslToRgb = function(h, s, l) {
                     var r, g, b;
 
-                    if(s == 0){
+                    if (s == 0) {
                       r = g = b = l; // achromatic
-                    }else{
-                      var hue2rgb = function(p, q, t){
-                        if(t < 0) t += 1;
-                        if(t > 1) t -= 1;
-                        if(t < 1/6) return p + (q - p) * 6 * t;
-                        if(t < 1/2) return q;
-                        if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    } else {
+                      var hue2rgb = function(p, q, t) {
+                        if (t < 0) t += 1;
+                        if (t > 1) t -= 1;
+                        if (t < 1 / 6) return p + (q - p) * 6 * t;
+                        if (t < 1 / 2) return q;
+                        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
                         return p;
                       }
 
                       var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
                       var p = 2 * l - q;
-                      r = hue2rgb(p, q, h + 1/3);
+                      r = hue2rgb(p, q, h + 1 / 3);
                       g = hue2rgb(p, q, h);
-                      b = hue2rgb(p, q, h - 1/3);
+                      b = hue2rgb(p, q, h - 1 / 3);
                     }
 
-                    return '#'+Math.round(r * 255).toString(16)+Math.round(g * 255).toString(16)+Math.round(b * 255).toString(16);
+                    return '#' + Math.round(r * 255).toString(16) + Math.round(g * 255).toString(16) + Math.round(b * 255).toString(16);
                   };
 
-                  return function(){
+                  return function() {
                     h += golden_ratio_conjugate;
                     h %= 1;
                     return hslToRgb(h, 0.8, 0.60);
@@ -181,12 +181,12 @@
                     _mapData = mapData;
                   }
 
-                  if (! _mapData || ! _groups.coordsCanvas) {
+                  if (!_mapData || !_groups.coordsCanvas) {
                     return;
                   }
 
-                  if (! _groups.pathCanvas) {
-                    _groups.pathCanvas = _groups.mapCanvas.insert('g','g.map-coords').classed('route-path', true);
+                  if (!_groups.pathCanvas) {
+                    _groups.pathCanvas = _groups.mapCanvas.insert('g', 'g.map-coords').classed('route-path', true);
 
                     setTimeout(function() {
 
@@ -196,17 +196,15 @@
                         }
 
                         var data = _mapData.routePoints[index];
-console.log(data);
 
-                          _groups.pathCanvas
-                              .append('path')
-                              .classed('route-' + index, true)
-                              .attr('d', _line(data))
-                              .attr('stroke', randomColor)
-                              .attr({'stroke-width': '0.5px', 'fill': 'none'});
+                        _groups.pathCanvas
+                            .append('path')
+                            .classed('route-' + index, true)
+                            .attr('d', _line(data))
+                            .attr('stroke', randomColor)
+                            .attr({'stroke-width': '0.5px', 'fill': 'none'});
 
-
-                        }
+                      }
                     }, 500);
 
                   }
@@ -217,6 +215,9 @@ console.log(data);
 
                   cityPoints.enter().append('circle')
                       .classed('data-point', true)
+                      .classed('callout-point', function(d) {
+                        return +d.Index === 464;
+                      })
                       .on('mouseover', function(d) {
                         d3.select(this).interrupt().transition().attr('r', 5);
                         _tipFn.attr('class', 'd3-tip animate').show(d);
@@ -237,7 +238,7 @@ console.log(data);
                       })
                       .attr('r', 0)
                       .transition()
-                      .attr('r', 2);
+                      .attr('r', function(d) { return +d.Index === 464 ? 4 : 2; });
 
                   cityPoints.exit().remove();
 
@@ -251,7 +252,7 @@ console.log(data);
                   _tipFn = d3.tip()
                       .direction('n')
                       .attr('class', 'd3-tip animate')
-                      .offset([-10, 0])
+                      .offset([-12, 0])
                       .html(function(d) {
                         console.log(d);
                         return '<strong>' + d.Institution + '</strong> <hr />' +
@@ -274,7 +275,6 @@ console.log(data);
                         .scale(100 * _elDimensions.width / 555)
                         .translate([_elDimensions.width / 2, _elDimensions.height / 3])
                         .precision(.2);
-
 
                     _line = d3.svg.line()
                         .x(function(d) {

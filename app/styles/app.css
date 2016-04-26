@@ -92,6 +92,16 @@ body {
     stroke-width: 1;
 }
 
+.data-point.callout-point {
+    fill: #ff024d;
+    stroke: #ffa5a2;
+}
+
+.data-point.callout-point:hover {
+    fill: #ff024d ;
+    stroke: #ff024d;
+}
+
 .data-point:hover {
     fill: #276ab1;
     stroke: #369bff;
