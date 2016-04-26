@@ -107,9 +107,10 @@ body {
 
 .data-point {
     cursor: pointer;
-    /*fill: hotpink;*/
-    fill: #369bff;
-    stroke: #276ab1;
+    fill: #FFE498;
+    stroke: none;
+    /*fill: #369bff;
+    stroke: #276ab1;*/
     stroke-width: 1;
 }
 

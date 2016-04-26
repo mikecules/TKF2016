@@ -224,7 +224,7 @@
                             .append('path')
                             .classed('route-' + index, true)
                             .attr('d', _line(data))
-                            .attr('stroke', randomColor)
+                            .attr('stroke', '#008BB0'/*randomColor*/)
                             .attr({'stroke-width': '0.5px', 'fill': 'none'});
 
                       }
