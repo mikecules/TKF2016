@@ -17,16 +17,22 @@
               key: 'routePoints',
               file: 'toronto-poly-points.csv',
               transformationFn: function(d) {
-                var pointIndexMap = {};
+                var pointIndexMap = {},
+                    includeIDs = [464, 1];
 
                 for (var i = 0; i < d.length; i++) {
-                  var point = d[i];
+                  var point = d[i],
+                      index = +point.Index;
 
-                  if (! angular.isDefined(pointIndexMap[point.Index])) {
-                    pointIndexMap[point.Index] = [];
+                  if (0 && includeIDs.indexOf(index) < 0) {
+                    continue;
                   }
 
-                  pointIndexMap[point.Index].push(point);
+                  if (! angular.isDefined(pointIndexMap[point.Index])) {
+                    pointIndexMap[index] = [];
+                  }
+
+                  pointIndexMap[index].push(point);
 
                 }
 
@@ -56,6 +62,9 @@
         });
       });
 
+      setTimeout(function() {
+        jQuery('.world-map-container > h1').addClass('intro-fade');
+      },100);
 
   }]);
 })();

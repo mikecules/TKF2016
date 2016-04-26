@@ -8,6 +8,7 @@ body {
     font-size: 1.2rem;
     font-family: "Open Sans";
     font-weight: 300;
+    margin: 0 0;
 }
 
 .world-map-container {
@@ -20,7 +21,33 @@ body {
     text-align: center;
     font-weight: 700;
     z-index: 1000;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0 0;
+    line-height: 6.4rem;
+    width: 100%;
+    background-color: rgba(0,0,0,0.5);
+    opacity: 1;
+    transition: all 0.2s ease-in;
+}
+
+.world-map-container .intro-fade {
+    transition-duration: 5s;
+    opacity: 0;
+}
+
+.world-map-container h1:hover {
+    opacity: 0.9;
+    transition-duration: 0.2s
+}
+
+
+.world-map-container h2 {
     position: relative;
+    top: 7rem;
+    left: 0;
+    width: 100%;
 }
 
 .world-map-container svg {
@@ -59,8 +86,15 @@ body {
 
 .data-point {
     cursor: pointer;
-    fill: hotpink;
-    stroke: blue;
+    /*fill: hotpink;*/
+    fill: #369bff;
+    stroke: #276ab1;
+    stroke-width: 1;
+}
+
+.data-point:hover {
+    fill: #276ab1;
+    stroke: #369bff;
 }
 
 .world-map-vis {
@@ -73,14 +107,16 @@ body {
     background: rgba(0,0,0,0.5);
     position: absolute;
     z-index: 100000;
-    top: 1rem;
-    right: 1rem;
+    top: 2rem;
+    right: 2rem;
     padding: 0.5rem 1rem;
+    cursor: pointer;
 }
 
 /* Tooltip */
 .d3-tip {
     line-height: 1.4rem;
+    z-index: 99999999;
     font-weight: 300;
     padding: 1.2rem;
     background: rgba(0, 0, 0, 0.8);
