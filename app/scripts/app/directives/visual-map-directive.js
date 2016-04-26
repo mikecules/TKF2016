@@ -28,6 +28,7 @@
                       coordsCanvas: null,
                       pathCanvas: null
                     },
+                    _tips = null,
                     randomColor = _randomColor();
 
                 /* Constants */
@@ -72,6 +73,8 @@
 
                 function _mapDrawnCallback(error, world) {
                   if (error) throw error;
+
+                  _svg.attr('viewBox', '0 0 ' + _elDimensions.width + ' ' + _elDimensions.height);
 
                   var graticule = d3.geo.graticule();
 
@@ -130,6 +133,11 @@
 
                         //_groups.pathCanvas.selectAll('path')
                         //  .attr('d', path.projection(_projection));
+
+                        if(_tips && ! _tips.hasClass('hidden')) {
+                          _tips.addClass('hidden');
+                        }
+
                       });
 
                   _svg.call(zoom);
@@ -164,11 +172,22 @@
                   _elDimensions.width = _$element.parent().outerWidth();
                   _elDimensions.height = Math.round(_elDimensions.width * SVG_MAP_ASPECT_RATIO);
 
-                  if (_svg) {
-                    _svg.attr('viewBox', '0 0 ' + _elDimensions.width + ' ' + _elDimensions.height);
+
+                  if (! _tips ) {
+                    _tips = jQuery('.tip');
                   }
 
-                  console.log(_elDimensions);
+                  if (_tips.is(':visible')) {
+                    _tips.css({
+                      'left': Math.round($(window).width() / 2 - _tips.outerWidth() / 2) + 'px',
+                      'top': Math.round($(window).height() / 4 - _tips.outerHeight() / 2) + 'px'
+                    });
+
+
+                  }
+
+
+                  //console.log(_elDimensions);
                 }
 
                 _ctrl.render = function(mapData) {

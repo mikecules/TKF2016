@@ -64,7 +64,7 @@
 
       setTimeout(function() {
         jQuery('.world-map-container > h1').addClass('intro-fade');
-      },100);
+      }, 2000);
 
   }]);
 })();

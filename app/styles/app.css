@@ -83,6 +83,27 @@ body {
     stroke-width: .5px;
 }
 
+.tip {
+    position: absolute;
+    top: 30%;
+    left: 30%;
+    text-align: center;
+    border-radius: 0.5rem;
+    background-color: rgba(0,0,0, 0.8);
+    color: #fff;
+    z-index: 99999999;
+    padding: 2rem 4rem;
+    font-size: 2rem;
+    width: 40rem;
+    margin: 0 0;
+    pointer-events: none;
+    transition: all 1s ease-in-out;
+}
+
+.tip.hidden {
+    opacity: 0;
+}
+
 
 .data-point {
     cursor: pointer;
@@ -125,6 +146,7 @@ body {
 
 /* Tooltip */
 .d3-tip {
+    display: none;
     line-height: 1.4rem;
     z-index: 99999999;
     font-weight: 300;
@@ -150,6 +172,7 @@ body {
 }
 
 .d3-tip.animate {
+    display: block;
      animation: bounceIn 0.2s ease-out;
      -webkit-animation: bounceIn 0.2s ease-out;
 }
