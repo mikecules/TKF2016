@@ -44,6 +44,9 @@
                   _svg.attr('viewBox', '0 0 ' + _elDimensions.width + ' ' + _elDimensions.height);
 
                   var graticule = d3.geo.graticule();
+                  var path = d3.geo.path()
+                      .projection(_projection);
+                  var isFirefox = typeof window.InstallTrigger !== 'undefined';
 
                   _svg.append('defs').append('path')
                       .datum({type: 'Sphere'})
@@ -63,10 +66,11 @@
                    .attr('class', 'graticule')
                    .attr('d', path);*/
 
-                  var path = d3.geo.path()
-                      .projection(_projection);
 
-                  _groups.mapCanvas.insert('path', '.graticule')
+
+                  _groups.mapCanvas
+                      .classed('on-gpu', ! isFirefox)
+                      .insert('path', '.graticule')
                       .datum(topojson.feature(world, world.objects.land))
                       .attr('class', 'land')
                       .attr('d', path);
@@ -84,6 +88,9 @@
                         .call(_tipFn);
                   }
 
+
+
+
                   var zoom = d3.behavior.zoom()
                       .on('zoom', function() {
 
@@ -92,10 +99,18 @@
 
                         _tipFn.attr('class', 'd3-tip').hide();
 
-                        _groups.mapCanvas
-                            .style('transform', 'translate3d(' +
-                                translate[0] + 'px,' + translate[1] + 'px'
-                                + ', 0px) ' + ' scale3d(' + zoomScale + ',' + zoomScale + ', 1)');
+                        if (! isFirefox) {
+                          _groups.mapCanvas
+                              .style('transform', 'translate3d(' +
+                                  translate[0] + 'px,' + translate[1] + 'px'
+                                  + ', 0px) ' + ' scale3d(' + zoomScale + ',' + zoomScale + ', 1)');
+                        }
+                        else {
+                          _groups.mapCanvas
+                              .attr('transform', 'translate(' +
+                                  translate[0] + ',' + translate[1] + ''
+                                  + ') ' + ' scale(' + zoomScale + ',' + zoomScale + ')');
+                        }
 
                         if (_tips && ! _tips.hasClass('hidden')) {
                           _tips.addClass('hidden');
@@ -113,17 +128,35 @@
                     _tipFn.attr('class', 'd3-tip').hide();
                     zoom.scale(1);
                     zoom.translate([0, 0]);
-                    _groups.mapCanvas.style('transform', 'translate3d(0, 0, 0) ' +
-                        ' scale3d(1, 1, 1)');
-                    //_groups.mapCanvas.transition().attr('transform', 'translate(0,0) scale(1,1)');
+
+                    if (! isFirefox) {
+                      _groups.mapCanvas.style('transform', 'translate3d(0, 0, 0) ' +
+                          ' scale3d(1, 1, 1)');
+                    }
+                    else {
+                      _groups.mapCanvas.attr('transform', 'translate(0, 0) ' +
+                          ' scale(1, 1)');
+                    }
+
                   };
 
                   if (angular.isArray(_lastTransformation.translate)) {
+
+                    if (! isFirefox) {
                     _groups.mapCanvas
                         .style('transform', 'translate3d(' +
                             _lastTransformation.translate[0] + 'px,' + _lastTransformation.translate[1] + 'px'
                             + ', 0px) ' + ' scale3d(' + _lastTransformation.scale +
                             ',' + _lastTransformation.scale + ', 1)');
+                    }
+                    else {
+
+                      _groups.mapCanvas
+                        .attr('transform', 'translate(' +
+                          _lastTransformation.translate[0] + ',' + _lastTransformation.translate[1] +
+                          ') ' + ' scale(' + _lastTransformation.scale +
+                          ',' + _lastTransformation.scale + ')');
+                    }
 
                     zoom.scale(_lastTransformation.scale);
                     zoom.translate([_lastTransformation.translate[0], _lastTransformation.translate[1]]);
