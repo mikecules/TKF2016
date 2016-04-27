@@ -28,48 +28,10 @@
                       coordsCanvas: null,
                       pathCanvas: null
                     },
-                    _tips = null,
-                    randomColor = _randomColor();
+                    _tips = null;
 
                 /* Constants */
                 var SVG_MAP_ASPECT_RATIO = 1 / 1.33;
-
-                // Adapted from http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
-                function _randomColor() {
-                  var golden_ratio_conjugate = 0.618033988749895;
-                  var h = Math.random();
-
-                  var hslToRgb = function(h, s, l) {
-                    var r, g, b;
-
-                    if (s == 0) {
-                      r = g = b = l; // achromatic
-                    } else {
-                      var hue2rgb = function(p, q, t) {
-                        if (t < 0) t += 1;
-                        if (t > 1) t -= 1;
-                        if (t < 1 / 6) return p + (q - p) * 6 * t;
-                        if (t < 1 / 2) return q;
-                        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-                        return p;
-                      }
-
-                      var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-                      var p = 2 * l - q;
-                      r = hue2rgb(p, q, h + 1 / 3);
-                      g = hue2rgb(p, q, h);
-                      b = hue2rgb(p, q, h - 1 / 3);
-                    }
-
-                    return '#' + Math.round(r * 255).toString(16) + Math.round(g * 255).toString(16) + Math.round(b * 255).toString(16);
-                  };
-
-                  return function() {
-                    h += golden_ratio_conjugate;
-                    h %= 1;
-                    return hslToRgb(h, 0.8, 0.60);
-                  };
-                }
 
                 function _mapDrawnCallback(error, world) {
                   if (error) throw error;
@@ -112,32 +74,25 @@
                       .attr('d', path);
 
                   if (!_groups.coordsCanvas) {
-                    _groups.coordsCanvas = _groups.mapCanvas.append('g').classed('map-coords', true);
+                    _groups.coordsCanvas = _groups.mapCanvas.append('g')
+                        .classed('map-coords', true)
+                        .call(_tipFn);
                   }
 
                   var zoom = d3.behavior.zoom()
                       .on('zoom', function() {
-                        var zoomScale = Math.max(0.5, Math.min(8, d3.event.scale));
+
+                        var zoomScale = Math.max(0.5, Math.min(8, d3.event.scale)),
+                            translate = d3.event.translate;
+
+                        _tipFn.attr('class', 'd3-tip').hide();
 
                         _groups.mapCanvas
                             .style('transform', 'translate3d(' +
-                                d3.event.translate[0] +'px,'+  d3.event.translate[1] + 'px'
+                                translate[0] + 'px,' + translate[1] + 'px'
                                 + ', 0px) ' + ' scale3d(' + zoomScale + ',' + zoomScale + ', 1)');
-                            //.transition()
-                            //.duration(10)
-                            /*.attr('transform', 'translate(' +
-                                d3.event.translate.join(',') +
-                                ") scale(" +
-                                zoomScale +
-                                ")");*/
 
-                        //_groups.mapCanvas.selectAll('path.graticule')
-                        //    .attr('d', path.projection(_projection));
-
-                        //_groups.pathCanvas.selectAll('path')
-                        //  .attr('d', path.projection(_projection));
-
-                        if(_tips && ! _tips.hasClass('hidden')) {
+                        if (_tips && ! _tips.hasClass('hidden')) {
                           _tips.addClass('hidden');
                         }
 
@@ -145,7 +100,9 @@
 
                   _svg.call(zoom);
 
+
                   $scope.resetZoomPan = function() {
+                    _tipFn.attr('class', 'd3-tip').hide();
                     zoom.scale(1);
                     zoom.translate([0, 0]);
                     _groups.mapCanvas.style('transform', 'translate3d(0, 0, 0) ' +
@@ -177,8 +134,7 @@
                   _elDimensions.width = _$element.parent().outerWidth();
                   _elDimensions.height = Math.round(_elDimensions.width * SVG_MAP_ASPECT_RATIO);
 
-
-                  if (! _tips ) {
+                  if (!_tips) {
                     _tips = jQuery('.tip');
                   }
 
@@ -188,9 +144,7 @@
                       'top': Math.round($(window).height() / 4 - _tips.outerHeight() / 2) + 'px'
                     });
 
-
                   }
-
 
                   //console.log(_elDimensions);
                 }
@@ -216,24 +170,21 @@
                   if (!_groups.pathCanvas) {
                     _groups.pathCanvas = _groups.mapCanvas.insert('g', 'g.map-coords').classed('route-path', true);
 
-                    setTimeout(function() {
-
-                      for (var index in _mapData.routePoints) {
-                        if (!_mapData.routePoints.hasOwnProperty(index)) {
-                          continue;
-                        }
-
-                        var data = _mapData.routePoints[index];
-
-                        _groups.pathCanvas
-                            .append('path')
-                            .classed('route-' + index, true)
-                            .attr('d', _line(data))
-                            .attr('stroke', '#008BB0'/*randomColor*/)
-                            .attr({'stroke-width': '0.5px', 'fill': 'none'});
-
+                    for (var index in _mapData.routePoints) {
+                      if (!_mapData.routePoints.hasOwnProperty(index)) {
+                        continue;
                       }
-                    }, 500);
+
+                      var data = _mapData.routePoints[index];
+
+                      _groups.pathCanvas
+                          .append('path')
+                          .classed('route-' + index, true)
+                          .attr('d', _line(data))
+                          .attr('stroke', '#008BB0')
+                          .attr({'stroke-width': '0.5px', 'fill': 'none'});
+
+                    }
 
                   }
 
@@ -266,7 +217,9 @@
                       })
                       .attr('r', 0)
                       .transition()
-                      .attr('r', function(d) { return +d.Index === 464 ? 4 : 2; });
+                      .attr('r', function(d) {
+                        return +d.Index === 464 ? 4 : 2;
+                      });
 
                   cityPoints.exit().remove();
 
@@ -282,7 +235,11 @@
                       .attr('class', 'd3-tip animate')
                       .offset([-15, 0])
                       .html(function(d) {
-                        console.log(d);
+
+                        if (!angular.isDefined(d)) {
+                          return '';
+                        }
+
                         return '<strong>' + d.Institution + '</strong> <hr />' +
                             '<p style="text-align: left"><strong>Latitude</strong>: ' + d.Lat + '<br />' +
                             '<strong>Longitude</strong>: ' + d.Long + '</p>' +
@@ -313,8 +270,6 @@
                         .interpolate('basis');
 
                     d3.json('data/toronto-map/world-50m.json', _mapDrawnCallback);
-
-                    _groups.mapCanvas.call(_tipFn);
 
                     // Listeners...
                     var resize = $window.attachEvent ?
