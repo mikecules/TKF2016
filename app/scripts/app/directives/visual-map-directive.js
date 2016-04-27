@@ -28,11 +28,15 @@
                       coordsCanvas: null,
                       pathCanvas: null
                     },
-                    _tips = null;
+                    _tips = null,
+                    _lastTransformation = {
+                      translate: null,
+                      scale: null
+                    };
 
                 /* Constants */
                 var SVG_MAP_ASPECT_RATIO = 1 / 1.33,
-                    MAP = {'hi-res': 'world-50m.json', 'low-res': 'world-110m.json'};
+                    MAP = {'high-res': 'world-50m.json', 'low-res': 'world-110m.json'};
 
                 function _mapDrawnCallback(error, world) {
                   if (error) throw error;
@@ -97,6 +101,9 @@
                           _tips.addClass('hidden');
                         }
 
+                        _lastTransformation.translate = translate;
+                        _lastTransformation.scale = zoomScale;
+
                       });
 
                   _svg.call(zoom);
@@ -110,6 +117,17 @@
                         ' scale3d(1, 1, 1)');
                     //_groups.mapCanvas.transition().attr('transform', 'translate(0,0) scale(1,1)');
                   };
+
+                  if (angular.isArray(_lastTransformation.translate)) {
+                    _groups.mapCanvas
+                        .style('transform', 'translate3d(' +
+                            _lastTransformation.translate[0] + 'px,' + _lastTransformation.translate[1] + 'px'
+                            + ', 0px) ' + ' scale3d(' + _lastTransformation.scale +
+                            ',' + _lastTransformation.scale + ', 1)');
+
+                    zoom.scale(_lastTransformation.scale);
+                    zoom.translate([_lastTransformation.translate[0], _lastTransformation.translate[1]]);
+                  }
 
                   if (_mapData) {
                     _ctrl.render();
@@ -230,6 +248,12 @@
 
                   _$element = $element;
 
+                  _groups = {
+                    mapCanvas: null,
+                    coordsCanvas: null,
+                    pathCanvas: null
+                  }
+
                   //Mouseover tip
                   _tipFn = d3.tip()
                       .direction('n')
@@ -253,9 +277,6 @@
                     // SVG Object initialization...
                     _svg = d3.select('#world-map-overlay');
 
-                    _groups.mapCanvas = _svg.append('g')
-                        .classed('map-canvas', true);
-
                     _projection = d3.geo.eckert5()
                         .scale(100 * _elDimensions.width / 555)
                         .translate([_elDimensions.width / 2, _elDimensions.height / 3])
@@ -269,8 +290,6 @@
                           return _projection([d.Long, d.Lat])[1];
                         })
                         .interpolate('basis');
-
-                    d3.json('data/toronto-map/' + MAP['low-res'], _mapDrawnCallback);
 
                     // Listeners...
                     var resize = $window.attachEvent ?
@@ -302,10 +321,16 @@
 
                   }
 
+                  _groups.mapCanvas = _svg.append('g')
+                      .classed('map-canvas', true);
+                  d3.json('data/toronto-map/' + MAP[$scope.currentMapResolution], _mapDrawnCallback);
+
                 };
 
               }],
               link: function(scope, element, attrs, mapCtrl) {
+
+                scope.currentMapResolution = 'low-res';
 
                 // Assume salesData is either a function that returns the data or is the data itself...
                 var mapDataFn = angular.isFunction(scope.mapData) ?
@@ -314,6 +339,14 @@
                 };
 
                 mapCtrl.init(element);
+
+                scope.setCurrentMapResolution = function(res) {
+                  scope.currentMapResolution = res;
+
+                  element.find('svg').empty();
+                  mapCtrl.init(element);
+                  mapCtrl.render();
+                };
 
                 scope.$watch(mapDataFn, function(newData) {
                   if (!newData) {

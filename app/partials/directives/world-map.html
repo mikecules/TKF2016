@@ -1,5 +1,15 @@
 <div class="world-map-vis">
     <div class="tip">Use your <i class="fa fa-arrows"></i> mouse to drag the map and your mouse scroll to zoom in/out.</div>
     <svg id="world-map-overlay" preserveAspectRatio="xMidYMid"></svg>
-    <button class="reset-zoom-bttn" data-ng-click="resetZoomPan()">Reset Zoom/Pan</button>
+    <button class="reset-zoom-bttn bttn" data-ng-click="resetZoomPan()">Reset Zoom/Pan</button>
+    <button class="map-res-bttn bttn inactive"
+            data-ng-click="setCurrentMapResolution('high-res')"
+            data-ng-if="currentMapResolution === 'low-res'">
+        High Detail Off
+    </button>
+    <button class="map-res-bttn bttn"
+            data-ng-click="setCurrentMapResolution('low-res')"
+            data-ng-if="currentMapResolution === 'high-res'">
+        High Detail On
+    </button>
 </div>

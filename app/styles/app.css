@@ -137,16 +137,36 @@ g.map-canvas {
     position: relative;
 }
 
-.world-map-vis .reset-zoom-bttn {
+.world-map-vis .bttn {
     color: #fff;
     border: solid 1px #ccc;
     background: rgba(0,0,0,0.5);
     position: absolute;
     z-index: 100000;
-    top: 2rem;
-    right: 2rem;
     padding: 0.5rem 1rem;
     cursor: pointer;
+}
+
+.bttn.reset-zoom-bttn {
+    top: 2rem;
+    right: 2rem;
+}
+
+.bttn.map-res-bttn {
+    top: 2rem;
+    left: 2rem;
+    color: #FFE498;
+    border-color: #FFE498;
+}
+
+.bttn.inactive {
+    color: #888;
+    border-color: #888;
+}
+
+.bttn.inactive:hover {
+    color: #fff;
+    border-color: #fff;
 }
 
 /* Tooltip */
