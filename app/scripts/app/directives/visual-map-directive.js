@@ -31,7 +31,8 @@
                     _tips = null;
 
                 /* Constants */
-                var SVG_MAP_ASPECT_RATIO = 1 / 1.33;
+                var SVG_MAP_ASPECT_RATIO = 1 / 1.33,
+                    MAP = {'hi-res': 'world-50m.json', 'low-res': 'world-110m.json'};
 
                 function _mapDrawnCallback(error, world) {
                   if (error) throw error;
@@ -269,7 +270,7 @@
                         })
                         .interpolate('basis');
 
-                    d3.json('data/toronto-map/world-50m.json', _mapDrawnCallback);
+                    d3.json('data/toronto-map/' + MAP['low-res'], _mapDrawnCallback);
 
                     // Listeners...
                     var resize = $window.attachEvent ?
