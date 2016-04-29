@@ -1,13 +1,13 @@
 'use strict';
 
-var $demos = $demos || {};
+var $app = $app || {};
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Pong!!!
 // @author: Michael Moncada <michael.moncada@gmail.com>
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-$demos.Pong = function Pong(canvasModalWidget, webGLDrawUtilities) {
+$app.Pong = function(canvasModalWidget, webGLDrawUtilities) {
 
       // get the gl context from our modal widget
       var _gl = null,
@@ -374,7 +374,7 @@ $demos.Pong = function Pong(canvasModalWidget, webGLDrawUtilities) {
           _gl.enable(_gl.DEPTH_TEST);
 
       // get the shaders and compile them - the resultant will be a program that is automatically joined to the gl context in the background
-          _glProgram = canvasModalWidget.setGLVertexAndFragmentShaders('#v-shader-demo6', '#f-shader-demo6');
+          _glProgram = canvasModalWidget.setGLVertexAndFragmentShaders('#v-shader-pong', '#f-shader-pong');
           _glProgram.customAttribs = {};
 
 
@@ -472,26 +472,26 @@ $demos.Pong = function Pong(canvasModalWidget, webGLDrawUtilities) {
           // clear the 2D canvas before drawing our stats!
           canvasModalWidget.clearHUDCanvas();
 
-          __HUDContext.font = '24px "Verdana"';
+          __HUDContext.font = '14px "Verdana"';
           __HUDContext.fillStyle = 'rgba(255, 255, 255, 1.0)'; // Set the font colour
-          __HUDContext.fillText('Pong', 270, 180);
+          __HUDContext.fillText('Pong', 135, 100);
 
           __HUDContext.fillStyle = 'rgba(204, 229, 255, 1.0)';
-          __HUDContext.fillText('GL', 330, 180);
+          __HUDContext.fillText('GL', 170, 100);
 
           __HUDContext.fillStyle = 'rgba(255, 204, 204, 1.0)';
-          __HUDContext.font = '18px "Verdana"';
+          __HUDContext.font = '10px "Verdana"';
 
           // display the right messaging
           if (__isGamePaused() === true && __hasGameStarted) {
-            __HUDContext.fillText('Press Space Bar to unpause...', 190, 210);
+            __HUDContext.fillText('Press Space Bar to unpause...', 90, 115);
             __HUDContext.fillStyle = 'rgba(219, 204, 255, 1.0)';
-            __HUDContext.fillText('Your Score: ' + __thePlayer.getScore(), 10, 20);
+            __HUDContext.fillText('Arnold\'s Score: ' + __thePlayer.getScore(), 25, 40);
             __HUDContext.fillStyle = 'rgba(255, 204, 204, 1.0)';
-            __HUDContext.fillText('Robot Score: ' + __players[1].getScore(), 10, 40);
+            __HUDContext.fillText('Duke\'s Score: ' + __players[1].getScore(), 25, 55);
           }
           else { // game intro messaging
-            __HUDContext.fillText('Press Space Bar to start...', 200, 210);
+            __HUDContext.fillText('Press Space Bar to start...', 100, 145);
           }
 
           // show the 2D HUD Canvas
@@ -1034,18 +1034,6 @@ $demos.Pong = function Pong(canvasModalWidget, webGLDrawUtilities) {
           __keyReleased[event.which] = true;
           //console.log(event.which);
         });
-
-      // when the modal is closed remove our key press listeners
-      canvasModalWidget.onHide(function() {
-        __isAppRunning = false;
-
-        __window
-          .unbind(KEY_PRESS_EVENT);
-
-        __window
-          .unbind(KEY_RELEASE_EVENT);
-        //console.log('cancel request animation');
-      });
 
     }
 

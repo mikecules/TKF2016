@@ -1,0 +1,73 @@
+<div class="canvas-container">
+    <div class="caption-body">
+        <div class="fps-container">&nbsp;</div>
+        <div class="caption"></div>
+    </div>
+    <div class="canvas-body"></div>
+    <div class="detail-body"></div>
+
+    <script id="v-shader-pong" type="x-shader/x-vertex">
+      attribute vec4 a_Position;
+      attribute vec3 a_VertexNormal; // this is the orginal (non-transformed) normal
+
+      uniform vec3 u_AmbientColour; // what is the ambient light colour in the 3D space - notice we do not need a vector for this!
+
+      uniform vec3 u_DirectionalColour; // what colour the directional light will be
+      uniform vec3 u_LightingDirection; // what direction will the light be coming from
+
+      // used to influence the colour chosen by the fragment shader
+      varying vec3 v_LightWeightFactor;
+
+
+      uniform mat4 u_PVMMatrix; // Perspective * View * Model
+      uniform mat3 u_NormalMatrix;
+
+      void main() {
+        gl_Position = u_PVMMatrix * a_Position;
+        gl_PointSize = 1.0;
+
+        // when we transform the vertex we want to ensure that the surface normal at that
+        // vertex location is also adjusted --> make sure we get some value 0 <= transformedSurfaceNormal <= 1
+        // since a negative color ref makes no sense (in this case we would want to make the colour at that surface black)!
+        vec3 transformedNormal = u_NormalMatrix * a_VertexNormal;
+
+        // when the normal vector of the surface is pointing in the same direction of the light source
+        // this surface is facing the light source so illuminate the surface
+        // by the directional colour.
+
+        /*  surface    directional
+            normal     light
+            ^          ^
+            |         /
+            |        /
+            |       /
+            |      /
+            |     /
+            |    /
+            |   /
+            |  /
+            | /
+            |/
+            cos(angle between the two vectors) = dot(transformedNormal, u_LightingDirection)
+        */
+        float transformedSurfaceNormal = max(0.0, dot(transformedNormal, u_LightingDirection));
+
+        v_LightWeightFactor = u_AmbientColour + u_DirectionalColour * transformedSurfaceNormal;
+
+      }
+    </script>
+    <script id="f-shader-pong" type="x-shader/x-fragment">
+        // a shortcut so we don't have to keep specifying the lighting direction
+        precision mediump float;
+
+        uniform vec4 u_FragColour;
+        varying vec3 v_LightWeightFactor;
+
+        void main() {
+          // This uses vector swizzling http://en.wikipedia.org/wiki/Swizzling_%28computer_graphics%29 to
+          // provide a code shortcode to multiplying each component of the vector components (r,g,b) with
+          // one another.
+          gl_FragColor = vec4(u_FragColour.rgb * v_LightWeightFactor.rgb, u_FragColour.a) ;
+        }
+    </script>
+</div>

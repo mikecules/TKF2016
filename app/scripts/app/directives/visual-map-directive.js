@@ -9,7 +9,7 @@
                 mapData: '='
               },
               replace: true,
-              templateUrl: 'partials/directives/world-map.html',
+              templateUrl: 'partials/directives/world-map-directive.html',
               controller: ['$scope', '$window', function($scope, $window) {
 
                 var _ctrl = this,
