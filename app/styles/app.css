@@ -2,6 +2,8 @@ html {
     font-size: 62.5%; /* 10px browser default */
 }
 
+* { box-sizing: border-box; }
+
 body {
     background: #000;
     color: #fff;
@@ -279,25 +281,46 @@ g.map-canvas.on-gpu {
 /* PONG Styles */
 .pong-visualization {
     padding: 1rem 1rem;
+    background-color: #eee;
 }
+
+.card.profile {
+    padding: 1rem 1rem;
+    width: 32%;
+}
+
 .card {
+    background-color: #fff;
     display: inline-block;
     width: 33.3%;
     border: none;
+    height: 28rem;
+
     vertical-align: top;
+    color: #000;
+    margin-left: 0.8rem;
 }
-.card h3 {
+
+.card .profile-header {
+    display: inline-block;
     text-align: center;
-    margin-top: 0.5rem;
+    margin-top: 0rem;
+    margin-left: 1rem;
+    vertical-align: top;
+    font-size: 1.4rem;
+}
+
+.card .profile-header em {
+    font-size: 2.4rem;
 }
 
 .card .profile-img {
-    width: 7rem;
-    height: 7rem;
+    display: inline-block;
+    width: 5rem;
+    height: 5rem;
+    margin-left: 1rem;
     position: relative;
-    display: block;
     overflow: hidden;
-    margin: 0 auto;
     border: solid 2px #fff;
     -webkit-border-radius: 50%;
     -moz-border-radius: 50%;
