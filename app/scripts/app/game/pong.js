@@ -462,6 +462,7 @@ $app.Pong = function(canvasModalWidget, webGLDrawUtilities) {
               __isAppRunning = true,
               __keyPressed = {},
               __keyReleased = {},
+              __ballVelocityRange = [1, 2],
               __robotErrorPercentage = 40, // make the robot mess up 40% of the time
               __robotVelocityPenalty = 0,
               __ROBOT_VELOCITY_PENALITY_PERCENTAGE = 1.0 - 9.0/10.0; // drop the robot's efficiency by this percentage. (10% of the delta time)
@@ -657,10 +658,11 @@ $app.Pong = function(canvasModalWidget, webGLDrawUtilities) {
         // is in milliseconds (using it's velocity)
         ///////////////////////////////////////////////////////////////////////////////
         function __Ball(position, boundingRect) {
+          var   BALL_VELOCITY = 0.002;
           var   ___ball = null,
                 ___ballPosition = position || new __Position(),
                 ___ballBoundingRect = boundingRect,
-                ___velocity = {x: 0.002, y: 0.002},
+                ___velocity = {x: BALL_VELOCITY, y: BALL_VELOCITY},
                 ___movingDirection = __DIRECTIONS.NONE,
                 ___radius = 0.1;
 
@@ -776,6 +778,11 @@ $app.Pong = function(canvasModalWidget, webGLDrawUtilities) {
           this.draw = ___draw;
           this.update = ___update;
           this.setDirection = ___setDirection;
+
+          this.setVelocityXY = function(vXPercentage, vYPercentage) {
+            ___velocity.x = BALL_VELOCITY * vXPercentage;
+            ___velocity.y = BALL_VELOCITY * vYPercentage;
+          };
 
           this.getPosition = function() {
             return ___ballPosition;
@@ -1277,6 +1284,11 @@ $app.Pong = function(canvasModalWidget, webGLDrawUtilities) {
 
             // alright, if the paddle is in place where the ball is moving rebound the ball
             if (x1  < ballPosition.x &&  ballPosition.x < x2 && inPlayerYRange) {
+              // set random velocity on rebound
+              __ball.setVelocityXY(
+                  Math.max(Math.random() * __ballVelocityRange[1], __ballVelocityRange[0]),
+                  Math.max(Math.random() * __ballVelocityRange[1], __ballVelocityRange[0])
+              );
               __ball.rebound();
               __ball.update(dt);
             }
