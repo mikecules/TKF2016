@@ -471,17 +471,15 @@
                 pongDirectiveCtrl.init($element);
 
                 var playerNames = [],
+                    playerNameMap = {},
                     pongCtrl = scope.pongCtrl,
                     players = pongCtrl.players;
 
-                for (var name in players) {
-                  if (players.hasOwnProperty(name)) {
-                    playerNames.push(name);
-                  }
+                for (var i = 0; i < players.length; i++) {
+                  var playerName = players[i].name();
+                    playerNames.push(playerName);
+                    playerNameMap[playerName] = players[i];
                 }
-
-                playerNames.sort().reverse();
-
 
                 $app.Pong(new pongDirectiveCtrl.CanvasWidget($element), webGLDrawUtilities)
                     .setPlayers(playerNames)
@@ -501,13 +499,21 @@
                       game.pause();
 
                       scope.$evalAsync(function() {
+                        var winnerName = winner.getName();
                         pongCtrl.gameOverlay.show = true;
-                        players[winner.getName()].score = winner.getScore();
+                        pongCtrl.gameOverlay.message = winnerName + ' Won!';
+
+                        playerNameMap[winnerName].won().score(winner.getScore());
+
+                        for (var i = 0; i < losers.length; i++) {
+                          var loser = losers[i];
+                          playerNameMap[loser.getName()].lost();
+                        }
 
                         $timeout(function() {
-                          //pongCtrl.gameOverlay.show = false;
+                          pongCtrl.gameOverlay.show = false;
                           game.unpause();
-                        }, 5000);
+                        }, 2000);
                       });
                     })
                     .on('gamePausedState', function(isPaused) {

@@ -319,7 +319,7 @@ g.map-canvas.on-gpu {
     color: #fff;
 }
 
-.player-action-overlay h1 {
+.player-action-overlay h2 {
     margin: 0 0;
     text-align: center;
 }
