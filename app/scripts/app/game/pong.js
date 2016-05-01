@@ -445,7 +445,8 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         __game = this,
         __eventCallbacks = {
           gameWin: function(){},
-          gamePaused: function(){}
+          gamePaused: function(){},
+          ballRebound: function(){}
         },
         __map = null,
         __players = [],
@@ -464,8 +465,17 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         __isAppRunning = true,
         __keyPressed = {},
         __keyReleased = {},
-        __ballVelocityRange = [1, 2],
-        __robotErrorPercentage = 40, // make the robot mess up 40% of the time
+        __ballVelocityPercentageRangeFn = function() {
+          var range = [1, 2];
+
+          return  [
+            Math.max(Math.random() * range[1], range[0]),
+            Math.max(Math.random() * range[1], range[0])
+          ];
+        },
+        __playerVelocityPercentageRangeFn = function() {
+          return 1.0;
+        },
         __robotVelocityPenalty = 0,
         __ROBOT_VELOCITY_PENALITY_PERCENTAGE = 1.0 - 9.0 / 10.0; // drop the robot's efficiency by this percentage. (10% of the delta time)
 
@@ -531,13 +541,16 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
     // is in milliseconds (using it's velocity)
     ///////////////////////////////////////////////////////////////////////////////
     function __Player(name, position, boundingRect, playerType) {
+
+      var VELOCITY = {x: 0.003, y: 0};
+
       var ___player = this,
           ___paddle = null,
           ___score = 0,
           ___playerType = playerType === __Player.prototype.PLAYER_TYPE.HUMAN ? playerType : __Player.prototype.PLAYER_TYPE.ROBOT,
           ___playerPosition = position || new __Position(),
           ___playerBoundingRect = boundingRect,
-          ___velocity = {x: 0.003, y: 0},
+          ___velocity = $.extend(true, {}, VELOCITY),
           ___movingDirection = __DIRECTIONS.NONE,
           ___paddleDimensions = {x: 0.5, y: 0.05, z: 0.1},
           ___name = name || 'Anonymous';
@@ -645,8 +658,8 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         return ___paddleDimensions;
       };
 
-      ___player.setVelocityX = function (x) {
-        ___velocity.x = x;
+      ___player.setVelocityPercentage = function (velocityPercentage) {
+        ___velocity.x = (velocityPercentage * VELOCITY.x) * (___velocity.x < 0 ? -1 : 1);
         return this;
       };
 
@@ -779,7 +792,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
       this.update = ___update;
       this.setDirection = ___setDirection;
 
-      this.setVelocityXY = function (vXPercentage, vYPercentage) {
+      this.setVelocityXYPercentage = function (vXPercentage, vYPercentage) {
         ___velocity.x = BALL_VELOCITY * vXPercentage;
         ___velocity.y = BALL_VELOCITY * vYPercentage * (___velocity.y < 0 ? -1 : 1);
       };
@@ -853,7 +866,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
     }
 
 
-    function __setGamePauseStatus(state) {
+    function __setGamePauseStatus(state, shouldShowTitleScreen) {
       var newGameStatus = (state === true ? __GAME_STATES.PAUSED : __GAME_STATES.RUNNING);
 
 
@@ -863,7 +876,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
       __gameStatus = newGameStatus;
 
-      if (__gameStatus === __GAME_STATES.PAUSED) {
+      if (shouldShowTitleScreen !== false && __gameStatus === __GAME_STATES.PAUSED) {
         __showTitleScreen();
       }
       else {
@@ -1300,20 +1313,29 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
           else {
             // penalize the robot by slowing it down if its made a mistake but
             // not so much the it the player looks too janky
+            player.setVelocityPercentage(__playerVelocityPercentageRangeFn.call(__game, player));
             player.update(Math.max(10, dt - __robotVelocityPenalty));
           }
 
           // alright, if the paddle is in place where the ball is moving rebound the ball
           if (x1 <= ballPosition.x && ballPosition.x <= x2 && inPlayerYRange) {
             // set random velocity on rebound
-            __ball.setVelocityXY(
-                Math.max(Math.random() * __ballVelocityRange[1], __ballVelocityRange[0]),
-                Math.max(Math.random() * __ballVelocityRange[1], __ballVelocityRange[0])
-            );
+            var ballVelocities = __ballVelocityPercentageRangeFn();
+
+            __ball.setVelocityXYPercentage(ballVelocities[0], ballVelocities[1]);
+
             __ball.rebound();
             __ball.update(dt);
+
+            // Call Asynchronously
+            setTimeout((function(p) {
+                  return function() {
+                    __eventCallbacks.ballRebound.call(__game, p);
+                  };
+                })(player), 0);
           }
           else if (ballYToHit <= -ballBoundingRect.y2 || ballYToHit >= ballBoundingRect.y2) {  // if the ball's position is out of it's y-bound (for it's bounding rectangle) somebody lost
+
             if (player === __thePlayer) {
               __playerWon(__players[1]); // the computer won - booooo....
             }
@@ -1350,10 +1372,34 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
     __game.start = __initGame;
 
+    __game.pause = function(shouldShowTitleScreen) {
+      __setGamePauseStatus(true, shouldShowTitleScreen === true ? true : false);
+    };
+
+    __game.unpause = function(shouldShowTitleScreen) {
+      __setGamePauseStatus(false, shouldShowTitleScreen === true ? true : false);
+    };
+
     __game.setPlayers = function(playerNames) {
 
       if (playerNames instanceof Array) {
         __playerNames = playerNames;
+      }
+
+      return __game;
+    };
+
+    __game.setBallVelocityPercentageRangeFn = function(velocityFn) {
+      if (typeof velocityFn === 'function') {
+        __ballVelocityPercentageRangeFn = velocityFn;
+      }
+
+      return __game;
+    };
+
+    __game.setPlayersVelocityPercentageFn = function(velocityFn) {
+      if (typeof velocityFn === 'function') {
+        __playerVelocityPercentageRangeFn = velocityFn;
       }
 
       return __game;

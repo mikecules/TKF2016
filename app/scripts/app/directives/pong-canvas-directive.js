@@ -471,6 +471,15 @@
 
                 $app.Pong(new CanvasWidget($element), webGLDrawUtilities)
                     .setPlayers(players)
+                    .setPlayersVelocityPercentageFn(function() { return 1; })
+                    .setBallVelocityPercentageRangeFn(function() {
+                      var range = [1, 2];
+
+                      return  [
+                        Math.max(Math.random() * range[1], range[0]),
+                        Math.max(Math.random() * range[1], range[0])
+                      ];
+                    })
                     .on('gameWin', function(winner, losers) {
 
                       scope.$evalAsync(function() {
@@ -479,6 +488,9 @@
                     })
                     .on('gamePaused', function() {
                       console.log('paused!');
+                    })
+                    .on('ballRebound', function(player) {
+                      console.log(player.getName() + ' hit the ball!');
                     })
                     .start();
 
