@@ -6,13 +6,13 @@
             </div>
             <div class="profile-header">
                 Arnold (Artificial Intelligence)<br />
-                <em data-ng-bind="pongCtrl.players.arnold.score"></em>
+                <em data-ng-bind="pongCtrl.players[1].score()"></em>
             </div>
 
         </div><!--
      --><div class="card">
             <div class="player-action-overlay" data-ng-class="{show: pongCtrl.gameOverlay.show}">
-                <h1>aaaaa</h1>
+                <h2 data-ng-bind="pongCtrl.gameOverlay.message"></h2>
             </div>
             <div class="pong-game-container">
                 <pong-canvas>
@@ -25,7 +25,7 @@
             </div>
             <div class="profile-header">
                 Duke (Artificial Intelligence)<br />
-                <em data-ng-bind="pongCtrl.players.duke.score"></em>
+                <em data-ng-bind="pongCtrl.players[0].score()"></em>
             </div>
         </div>
     </div>
