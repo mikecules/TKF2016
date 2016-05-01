@@ -5,6 +5,15 @@
   angular.module('app')
       .controller('pongCtrl', function() {
         var _ctrl = this;
-        _ctrl.players = {arnold : {score: 0}, duke: {score: 0}};
+
+        _ctrl.gameOverlay = {
+          show: true,
+          playerTarget: null,
+          title: '',
+          caption: ''
+        };
+
+        _ctrl.players = {
+          arnold : {score: 0}, duke: {score: 0}};
       });
 })();

@@ -445,7 +445,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         __game = this,
         __eventCallbacks = {
           gameWin: function(){},
-          gamePaused: function(){},
+          gamePausedState: function(){},
           ballRebound: function(){}
         },
         __map = null,
@@ -867,7 +867,8 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
 
     function __setGamePauseStatus(state, shouldShowTitleScreen) {
-      var newGameStatus = (state === true ? __GAME_STATES.PAUSED : __GAME_STATES.RUNNING);
+      var newGameStatus = (state === true ? __GAME_STATES.PAUSED : __GAME_STATES.RUNNING),
+          isPaused = newGameStatus === __GAME_STATES.PAUSED;
 
 
       if (newGameStatus === __gameStatus) {
@@ -876,14 +877,14 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
       __gameStatus = newGameStatus;
 
-      if (shouldShowTitleScreen !== false && __gameStatus === __GAME_STATES.PAUSED) {
+      if (shouldShowTitleScreen !== false && isPaused) {
         __showTitleScreen();
       }
       else {
         canvasModalWidget.hideHUDCanvas();
       }
 
-      __eventCallbacks['gamePaused'].call(__game);
+      __eventCallbacks['gamePausedState'].call(__game, isPaused);
     }
 
     function __getGameStatus() {

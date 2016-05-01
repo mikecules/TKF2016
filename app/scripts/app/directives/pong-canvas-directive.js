@@ -2,13 +2,23 @@
   'use strict';
 
   angular.module('app')
-      .directive('pongCanvas', function(webGLDrawUtilities) {
+      .directive('pongCanvas', function(webGLDrawUtilities, $timeout) {
             return {
               restrict: 'EA',
               scope: true,
               replace: true,
               templateUrl: 'partials/directives/pong-canvas-directive.html',
-              link: function(scope, $element) {
+              controller: function() {
+
+                var _ctrl = this,
+                    $element = null;
+
+
+                _ctrl.init = function(el) {
+                  $element = el;
+                };
+
+                _ctrl.CanvasWidget = CanvasWidget;
 
                 // Canvas() constructor method represents the DOM canvas and provides methods
                 // for creating 2d and WebGL canvases. Also in the case of WebGL canvases the
@@ -322,12 +332,12 @@
 
                   function __initCanvasWidget() {
 
-                      _captionElement = containerEl.find('.caption');
-                      _canvasBody = containerEl.find('.canvas-body');
-                      _canvasDetailBody = containerEl.find('.detail-body');
-                      _canvasFPSContainer = containerEl.find('.fps-container');
+                    _captionElement = containerEl.find('.caption');
+                    _canvasBody = containerEl.find('.canvas-body');
+                    _canvasDetailBody = containerEl.find('.detail-body');
+                    _canvasFPSContainer = containerEl.find('.fps-container');
 
-                      __initCanvases();
+                    __initCanvases();
 
                   }
 
@@ -453,24 +463,28 @@
 
                 };
 
+              },
+              link: function(scope, $element, attrs, pongDirectiveCtrl) {
 
                 /////////////////////
 
-                var players = [];
+                pongDirectiveCtrl.init($element);
 
-                for (var name in scope.pongCtrl.players) {
+                var playerNames = [],
+                    pongCtrl = scope.pongCtrl,
+                    players = pongCtrl.players;
 
-                  if (scope.pongCtrl.players.hasOwnProperty(name)) {
-                    players.push(name);
+                for (var name in players) {
+                  if (players.hasOwnProperty(name)) {
+                    playerNames.push(name);
                   }
                 }
 
-                players.sort().reverse();
+                playerNames.sort().reverse();
 
-                console.log(players);
 
-                $app.Pong(new CanvasWidget($element), webGLDrawUtilities)
-                    .setPlayers(players)
+                $app.Pong(new pongDirectiveCtrl.CanvasWidget($element), webGLDrawUtilities)
+                    .setPlayers(playerNames)
                     .setPlayersVelocityPercentageFn(function() { return 1; })
                     .setBallVelocityPercentageRangeFn(function() {
                       var range = [1, 2];
@@ -482,17 +496,32 @@
                     })
                     .on('gameWin', function(winner, losers) {
 
+                      var game = this;
+
+                      game.pause();
+
                       scope.$evalAsync(function() {
-                        scope.pongCtrl.players[winner.getName()].score = winner.getScore();
+                        pongCtrl.gameOverlay.show = true;
+                        players[winner.getName()].score = winner.getScore();
+
+                        $timeout(function() {
+                          //pongCtrl.gameOverlay.show = false;
+                          game.unpause();
+                        }, 5000);
                       });
                     })
-                    .on('gamePaused', function() {
-                      console.log('paused!');
+                    .on('gamePausedState', function(isPaused) {
+                      console.log(isPaused ? 'paused!': 'unpaused');
                     })
+
                     .on('ballRebound', function(player) {
                       console.log(player.getName() + ' hit the ball!');
                     })
                     .start();
+
+                    ////////////////////////////////////////
+
+
 
               }
           };
