@@ -9,6 +9,7 @@
         _ctrl.gameOverlay = {
           show: false,
           playerTarget: null,
+          isPlayerTaunt: false,
           message: ''
         };
 
@@ -60,7 +61,9 @@
         };
 
         _visPlayer.willTaunt = function() {
-          return (_characteristics[CHARACTERISTICS.AGGRESSION] * Math.random()) > 0.5;
+          var tauntProbability =  parseFloat(Math.random()).toFixed(2);
+          console.log(this.name() + ' taunt prob: ', tauntProbability);
+          return tauntProbability > (1 - _characteristics[CHARACTERISTICS.AGGRESSION].value);
         };
 
         _visPlayer.characteristics = function() {
@@ -72,7 +75,7 @@
         };
 
         _visPlayer.beingTaunted = function() {
-          var randomAffectedAttributeIndex = Math.round(Math.random() * 4) + 1; // Do not include Skill
+          var randomAffectedAttributeIndex = Math.round(Math.random() * 3) + 1; // Do not include Skill
           var positiveOrNegativeInfluenceProperty = Math.random() > 0.5 ? 'winInc' : 'loseInc';
 
           var attr = _characteristics[randomAffectedAttributeIndex];

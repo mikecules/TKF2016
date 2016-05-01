@@ -319,10 +319,21 @@ g.map-canvas.on-gpu {
     color: #fff;
 }
 
-.player-action-overlay h2 {
-    margin: 0 0;
+.player-action-overlay .overlay {
+    margin: 7rem auto;
     text-align: center;
 }
+
+.card .player-action-overlay .overlay .profile-img {
+    height: 10rem;
+    width: 10rem;
+}
+
+.card .player-action-overlay .overlay .profile-header {
+    margin-top: 3.5rem;
+    font-size: 2rem;
+}
+
 
 .player-action-overlay.show {
     opacity: 1;

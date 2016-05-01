@@ -12,7 +12,24 @@
         </div><!--
      --><div class="card">
             <div class="player-action-overlay" data-ng-class="{show: pongCtrl.gameOverlay.show}">
-                <h2 data-ng-bind="pongCtrl.gameOverlay.message"></h2>
+                <div data-ng-if="pongCtrl.gameOverlay.playerTarget === 'Arnold'" class="overlay">
+                    <div class="profile-img arnold" data-ng-if="pongCtrl.gameOverlay.isPlayerTaunt">
+                        <img src="images/arnold-angry.jpg">
+                    </div>
+                    <div class="profile-img arnold" data-ng-if="! pongCtrl.gameOverlay.isPlayerTaunt">
+                        <img src="images/arnold.jpg">
+                    </div>
+                    <div class="profile-header" data-ng-bind="pongCtrl.gameOverlay.message"></div>
+                </div>
+                <div data-ng-if="pongCtrl.gameOverlay.playerTarget === 'Duke'" class="overlay">
+                    <div class="profile-img duke"  data-ng-if="pongCtrl.gameOverlay.isPlayerTaunt">
+                        <img src="images/duke-angry.jpg">
+                    </div>
+                    <div class="profile-img duke"  data-ng-if="! pongCtrl.gameOverlay.isPlayerTaunt">
+                        <img src="images/duke.jpg">
+                    </div>
+                    <div class="profile-header" data-ng-bind="pongCtrl.gameOverlay.message"></div>
+                </div>
             </div>
             <div class="pong-game-container">
                 <pong-canvas>

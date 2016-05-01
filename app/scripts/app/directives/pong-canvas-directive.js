@@ -468,18 +468,24 @@
 
                 /////////////////////
 
-                pongDirectiveCtrl.init($element);
+
 
                 var playerNames = [],
                     playerNameMap = {},
                     pongCtrl = scope.pongCtrl,
-                    players = pongCtrl.players;
+                    players = pongCtrl.players,
+                    gameOverlay = pongCtrl.gameOverlay;
+
+                var OVERLAY_TIMEOUT_MS = 2000;
 
                 for (var i = 0; i < players.length; i++) {
                   var playerName = players[i].name();
                     playerNames.push(playerName);
                     playerNameMap[playerName] = players[i];
                 }
+
+
+                pongDirectiveCtrl.init($element);
 
                 $app.Pong(new pongDirectiveCtrl.CanvasWidget($element), webGLDrawUtilities)
                     .setPlayers(playerNames)
@@ -500,20 +506,19 @@
 
                       scope.$evalAsync(function() {
                         var winnerName = winner.getName();
-                        pongCtrl.gameOverlay.show = true;
-                        pongCtrl.gameOverlay.message = winnerName + ' Won!';
+                        gameOverlay.show = true;
+                        gameOverlay.message = winnerName + ' Won!';
+                        gameOverlay.playerTarget = winnerName;
 
                         playerNameMap[winnerName].won().score(winner.getScore());
 
-                        for (var i = 0; i < losers.length; i++) {
-                          var loser = losers[i];
-                          playerNameMap[loser.getName()].lost();
-                        }
+                        var loser = losers[0];
+                        playerNameMap[loser.getName()].lost();
 
                         $timeout(function() {
-                          pongCtrl.gameOverlay.show = false;
+                          gameOverlay.show = false;
                           game.unpause();
-                        }, 2000);
+                        }, OVERLAY_TIMEOUT_MS + 500);
                       });
                     })
                     .on('gamePausedState', function(isPaused) {
@@ -521,7 +526,44 @@
                     })
 
                     .on('ballRebound', function(player) {
-                      console.log(player.getName() + ' hit the ball!');
+                      console.log(playerNames, players, player.getName());
+                      var game = this,
+                          attackingPlayer,
+                          defendingPlayer;
+
+                      // convert pong player into angular player
+                      if (player.getName() !== playerNames[0]) {
+                        defendingPlayer = players[0];
+                        attackingPlayer = players[1];
+                      }
+                      else {
+                        defendingPlayer = players[1];
+                        attackingPlayer = players[0];
+                      }
+
+                      if (attackingPlayer.willTaunt()) {
+                        defendingPlayer.beingTaunted();
+                        game.pause();
+
+                        scope.$apply(function() {
+                          gameOverlay.show = true;
+                          gameOverlay.isPlayerTaunt = true;
+                          gameOverlay.playerTarget = defendingPlayer.name();
+                          gameOverlay.message = defendingPlayer.name() + ' Taunted by ' + attackingPlayer.name();
+
+                          $timeout(function() {
+                            game.unpause();
+                            gameOverlay.playerTarget = null;
+                            gameOverlay.show = false;
+                            gameOverlay.isPlayerTaunt = false;
+                          }, OVERLAY_TIMEOUT_MS);
+                        });
+                      }
+
+
+
+
+                     console.log(attackingPlayer.name() + ' hit the ball!', 'Rebounded to ' + defendingPlayer.name());
                     })
                     .start();
 
