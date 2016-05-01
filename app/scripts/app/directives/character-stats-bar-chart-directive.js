@@ -16,11 +16,11 @@
               var _barchart = this;
               _barchart._data = data || [];
               _barchart._width = width || ($element.width());
-              _barchart._height = height || ($element.height() - 60);
+              _barchart._height = height || ($element.height() - 80);
               _barchart._padding = padding || 0;
 
               _barchart._containerSelection = d3.select(domContainer);
-              _barchart._svg = _barchart._containerSelection.append('svg')
+              _barchart._svg = _barchart._containerSelection.insert('svg', ':first-child')
                   .classed('barchart', true)
                   .attr('width', _barchart._width)
                   .attr('height', _barchart._height);

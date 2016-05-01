@@ -4,7 +4,18 @@
 
   angular.module('app')
       .controller('pongCtrl', function() {
-        var _ctrl = this;
+        var _ctrl = this,
+            _playerWinHistory = [];
+
+        var winFn = function(p) {
+          var player = {};
+
+          angular.copy(p, player);
+
+          _playerWinHistory.push(player);
+
+          console.log(_playerWinHistory);
+        };
 
         _ctrl.gameOverlay = {
           show: false,
@@ -13,7 +24,15 @@
           message: ''
         };
 
-        _ctrl.players = [new VisPlayer('Duke'), new VisPlayer('Arnold')];
+        _ctrl.playerWinHistory = _playerWinHistory;
+
+        _ctrl.players = [
+          new VisPlayer('Duke')
+              .on('playerWin', winFn),
+
+          new VisPlayer('Arnold')
+              .on('playerWin', winFn)
+        ];
 
 
         function VisPlayer(name) {
@@ -36,6 +55,10 @@
                 {attr: 'Aggression', value: 0.5, successWeight: 0.2, winInc: 0, loseInc: 0.1},
                 {attr: 'Luck', value: 0.5, successWeight: 0.2, winInc: -0.05, loseInc: 0.05}
               ],
+              _eventCallbacks = {
+                playerWin: function() {},
+                playerLose: function() {}
+              },
               _characteristicsCopy = _characteristics.slice();
 
 
@@ -49,6 +72,8 @@
             }
 
             _copyCharacteristics();
+
+            _eventCallbacks['playerLose'].call(_visPlayer, _visPlayer);
           }
 
           function _copyCharacteristics() {
@@ -56,7 +81,10 @@
           }
 
           _visPlayer.won = function() {
+
             _updateCharacteristics(true);
+
+            _eventCallbacks['playerWin'].call(_visPlayer, _visPlayer);
 
             return _visPlayer;
           };
@@ -108,6 +136,15 @@
             }
 
             return _score;
+          };
+
+
+          _visPlayer.on = function(eventName, fn) {
+            if (typeof fn === 'function' && typeof _eventCallbacks[eventName] !== 'undefined') {
+              _eventCallbacks[eventName] = fn;
+            }
+
+            return _visPlayer;
           };
 
         }

@@ -458,3 +458,46 @@ rect.bar {
 .bar text {
     font-size: 10px;
 }
+
+.legend {
+    margin: 0 0;
+    padding: 0 0;
+    text-align: center;
+}
+
+.legend .legend-option {
+    display: inline-block;
+    padding-left: 1rem;
+}
+
+.legend .legend-option:first-child {
+    padding-left:  0rem;
+}
+
+.legend-option .legend-swatch {
+    width: 1rem;
+    height: 1rem;
+    content: ' ';
+    background-color: #eee;
+    display: inline-block;
+}
+
+.legend-option .legend-swatch.skill {
+    background-color: rgb(31, 119, 180)
+}
+
+.legend-option .legend-swatch.energy {
+    background-color: rgb(44, 160, 44);
+}
+
+.legend-option .legend-swatch.confidence {
+    background-color: rgb(214, 39, 40);
+}
+
+.legend-option .legend-swatch.aggression {
+    background-color: rgb(148, 103, 189);
+}
+
+.legend-option .legend-swatch.luck {
+    background-color: rgb(140, 86, 75);
+}
