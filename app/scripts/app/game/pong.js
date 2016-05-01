@@ -1325,15 +1325,18 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
             __ball.setVelocityXYPercentage(ballVelocities[0], ballVelocities[1]);
 
-            __ball.rebound();
-            __ball.update(dt);
 
             // Call Asynchronously
             setTimeout((function(p) {
-                  return function() {
-                    __eventCallbacks.ballRebound.call(__game, p);
-                  };
-                })(player), 0);
+              return function() {
+                __eventCallbacks.ballRebound.call(__game, p);
+              };
+            })(player), 0);
+
+            __ball.rebound();
+            __ball.update(dt);
+
+
           }
           else if (ballYToHit <= -ballBoundingRect.y2 || ballYToHit >= ballBoundingRect.y2) {  // if the ball's position is out of it's y-bound (for it's bounding rectangle) somebody lost
 

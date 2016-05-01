@@ -35,7 +35,8 @@
               {attr: 'Confidence', value: 0.5, successWeight: 0.2, winInc: 0.1, loseInc: -0.05},
               {attr: 'Aggression', value: 0.5, successWeight: 0.2, winInc: 0, loseInc: 0.1},
               {attr: 'Luck', value: 0.5, successWeight: 0.2, winInc: -0.05, loseInc: 0.05}
-            ];
+            ],
+            _characteristicsCopy;
 
 
         function _updateCharacteristics(hasWon) {
@@ -46,6 +47,12 @@
             attr.value += attr[incPropertyName];
             attr.value = Math.min(1, Math.max(0, attr.value));
           }
+
+          _copyCharacteristics();
+        }
+
+        function _copyCharacteristics() {
+          _characteristicsCopy = _characteristics.slice();
         }
 
         _visPlayer.won = function() {
@@ -62,16 +69,12 @@
 
         _visPlayer.willTaunt = function() {
           var tauntProbability =  parseFloat(Math.random()).toFixed(2);
-          console.log(this.name() + ' taunt prob: ', tauntProbability);
-          return tauntProbability > (1 - _characteristics[CHARACTERISTICS.AGGRESSION].value);
+          console.log(this.name() + ' taunt prob: ', tauntProbability, tauntProbability > (1 - _characteristics[CHARACTERISTICS.AGGRESSION].value));
+          return tauntProbability >= (1 - _characteristics[CHARACTERISTICS.AGGRESSION].value);
         };
 
         _visPlayer.characteristics = function() {
-          var characteristicsCopy = {};
-
-          angular.copy(_characteristics,characteristicsCopy);
-
-          return characteristicsCopy;
+          return _characteristicsCopy;
         };
 
         _visPlayer.beingTaunted = function() {
@@ -82,6 +85,8 @@
 
           attr.value += parseFloat(attr[positiveOrNegativeInfluenceProperty]).toFixed(2);
           attr.value = Math.min(1, Math.max(0, attr.value));
+
+          _copyCharacteristics();
 
           return _visPlayer;
         };

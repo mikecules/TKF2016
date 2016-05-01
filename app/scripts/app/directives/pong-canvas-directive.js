@@ -526,7 +526,7 @@
                     })
 
                     .on('ballRebound', function(player) {
-                      console.log(playerNames, players, player.getName());
+                      //console.log(playerNames, players, player.getName());
                       var game = this,
                           attackingPlayer,
                           defendingPlayer;
@@ -542,8 +542,8 @@
                       }
 
                       if (attackingPlayer.willTaunt()) {
-                        defendingPlayer.beingTaunted();
                         game.pause();
+                        defendingPlayer.beingTaunted();
 
                         scope.$apply(function() {
                           gameOverlay.show = true;
@@ -558,12 +558,15 @@
                             gameOverlay.isPlayerTaunt = false;
                           }, OVERLAY_TIMEOUT_MS);
                         });
+
+                        return true;
                       }
 
 
 
 
                      console.log(attackingPlayer.name() + ' hit the ball!', 'Rebounded to ' + defendingPlayer.name());
+                      return false;
                     })
                     .start();
 

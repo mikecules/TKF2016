@@ -335,6 +335,14 @@ g.map-canvas.on-gpu {
 }
 
 
+.player-action-overlay.taunt.arnold {
+    background-color: rgba(50, 0, 0, 0.9);
+}
+
+.player-action-overlay.taunt.duke {
+    background-color: rgba(0, 0, 50, 0.9);
+}
+
 .player-action-overlay.show {
     opacity: 1;
 }

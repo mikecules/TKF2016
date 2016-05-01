@@ -8,10 +8,12 @@
                 Arnold (Artificial Intelligence)<br />
                 <em data-ng-bind="pongCtrl.players[1].score()"></em>
             </div>
+            <bar-chart data-data="pongCtrl.players[1].characteristics()"></bar-chart>
 
         </div><!--
      --><div class="card">
-            <div class="player-action-overlay" data-ng-class="{show: pongCtrl.gameOverlay.show}">
+            <div class="player-action-overlay"
+                 data-ng-class="{show: pongCtrl.gameOverlay.show, taunt: pongCtrl.gameOverlay.isPlayerTaunt, arnold: pongCtrl.gameOverlay.playerTarget === 'Arnold', duke: pongCtrl.gameOverlay.playerTarget !== 'Arnold'}">
                 <div data-ng-if="pongCtrl.gameOverlay.playerTarget === 'Arnold'" class="overlay">
                     <div class="profile-img arnold" data-ng-if="pongCtrl.gameOverlay.isPlayerTaunt">
                         <img src="images/arnold-angry.jpg">
@@ -44,6 +46,7 @@
                 Duke (Artificial Intelligence)<br />
                 <em data-ng-bind="pongCtrl.players[0].score()"></em>
             </div>
+            <bar-chart data-data="pongCtrl.players[0].characteristics()"></bar-chart>
         </div>
     </div>
     <div class="row">
