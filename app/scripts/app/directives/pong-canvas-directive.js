@@ -5,10 +5,11 @@
       .directive('pongCanvas', function(webGLDrawUtilities) {
             return {
               restrict: 'EA',
-              scope: {},
+              scope: true,
               replace: true,
               templateUrl: 'partials/directives/pong-canvas-directive.html',
               link: function(scope, $element) {
+
                 // Canvas() constructor method represents the DOM canvas and provides methods
                 // for creating 2d and WebGL canvases. Also in the case of WebGL canvases the
                 // below constructor offers methods for creating the webGL program and compiling and linking
@@ -300,7 +301,8 @@
                 // 2) The WebGL canvas we run our demos on
                 function CanvasWidget(containerEl) {
 
-                  var _canvas2D = null,
+                  var _canvasWidget = this,
+                      _canvas2D = null,
                       _canvas3D = null,
                       _captionElement = null,
                       _canvasBody = null,
@@ -374,42 +376,42 @@
                   // Publically accessible Canvas Modal Widget API
                   ///////////////////////////////////////////////////////////////
 
-                  this.getHUDContext = function() {
+                  _canvasWidget.getHUDContext = function() {
                     return _canvas2D.getContext();
                   };
 
-                  this.getGLContext = function() {
+                  _canvasWidget.getGLContext = function() {
                     return _canvas3D.getContext();
                   };
 
                   // get the jQuery object representing the webGL canvas
-                  this.getGLCanvasEl = function() {
+                  _canvasWidget.getGLCanvasEl = function() {
                     return _canvas3D.getCanvasJQObj();
                   };
 
-                  this.getGLViewportAspectRatio = function() {
+                  _canvasWidget.getGLViewportAspectRatio = function() {
                     return _canvas3D.getViewportAspectRatio();
                   };
 
                   // get the jQuery object representing the HUD
-                  this.get2DCanvasEl = function() {
+                  _canvasWidget.get2DCanvasEl = function() {
                     return _canvas2D.getCanvasJQObj();
                   };
 
-                  this.showHUDCanvas = function() {
+                  _canvasWidget.showHUDCanvas = function() {
                     _canvas3D.getCanvasJQObj().css({'zIndex': 0});
                     _canvas2D.getCanvasJQObj().fadeIn('fast').css({'zIndex': 1});
                     return this;
                   };
 
-                  this.hideHUDCanvas = function() {
+                  _canvasWidget.hideHUDCanvas = function() {
                     _canvas3D.getCanvasJQObj().css({'zIndex': 1});
                     _canvas2D.getCanvasJQObj().hide('fast').css({'zIndex': 0});
                     return this;
                   };
 
                   // clears the HUD from drawing
-                  this.clearHUDCanvas = function() {
+                  _canvasWidget.clearHUDCanvas = function() {
                     _canvas2D
                         .getContext()
                         .clearRect(0, 0, _canvas2D.getWidth(), _canvas2D.getHeight());
@@ -417,42 +419,68 @@
 
                   // we use this method to set the vertex and fragment shaders in one call and return the
                   // resultant webGL Program
-                  this.setGLVertexAndFragmentShaders = function(vertexShaderStrOrID, fragmentShaderStrOrID) {
+                  _canvasWidget.setGLVertexAndFragmentShaders = function(vertexShaderStrOrID, fragmentShaderStrOrID) {
                     return _canvas3D.setVertexAndFragmentShaders(vertexShaderStrOrID, fragmentShaderStrOrID);
                   };
 
                   // give the user the option of getting the program - we could also provide a setter in the future
-                  this.getGLProgram = function() {
+                  _canvasWidget.getGLProgram = function() {
                     return _canvas3D.getGLProgram();
-                  }
+                  };
 
                   // the title of the modal
-                  this.setCaption = function(caption) {
+                  _canvasWidget.setCaption = function(caption) {
                     _captionElement.html(caption);
                     return this;
                   };
 
                   // the text on the bottom on the modal
-                  this.setDetailText = function(details) {
+                  _canvasWidget.setDetailText = function(details) {
                     _canvasDetailBody.html(details);
                     return this;
                   };
 
 
-                  this.FPSHide = __modalFPSHide;
+                  _canvasWidget.FPSHide = __modalFPSHide;
 
                   // we use this method to show the Frames Per Second (FPS) (used in PONG)
-                  this.setFPSVal = function(fps) {
+                  _canvasWidget.setFPSVal = function(fps) {
                     _canvasFPSContainer.text('FPS: ' + fps);
                   };
 
                   // we can force our own cleanup of the canvases using this method
-                  this.resetCanvasWidget = __resetCanvasWidget;
+                  _canvasWidget.resetCanvasWidget = __resetCanvasWidget;
 
                 };
 
+
                 /////////////////////
-                $app.Pong(new CanvasWidget($element), webGLDrawUtilities);
+
+                var players = [];
+
+                for (var name in scope.pongCtrl.players) {
+
+                  if (scope.pongCtrl.players.hasOwnProperty(name)) {
+                    players.push(name);
+                  }
+                }
+
+                players.sort().reverse();
+
+                console.log(players);
+
+                $app.Pong(new CanvasWidget($element), webGLDrawUtilities)
+                    .setPlayers(players)
+                    .on('gameWin', function(winner, losers) {
+
+                      scope.$evalAsync(function() {
+                        scope.pongCtrl.players[winner.getName()].score = winner.getScore();
+                      });
+                    })
+                    .on('gamePaused', function() {
+                      console.log('paused!');
+                    })
+                    .start();
 
               }
           };

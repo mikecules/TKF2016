@@ -1,12 +1,12 @@
 <div class="pong-visualization">
     <div class="row">
         <div class="card profile">
-            <div class="profile-img">
+            <div class="profile-img arnold">
                 <img src="images/arnold.jpg">
             </div>
             <div class="profile-header">
                 Arnold (Artificial Intelligence)<br />
-                <em>0</em>
+                <em data-ng-bind="pongCtrl.players.arnold.score"></em>
             </div>
 
         </div><!--
@@ -17,12 +17,12 @@
             </div>
         </div><!--
      --><div class="card profile">
-            <div class="profile-img">
+            <div class="profile-img duke">
                 <img src="images/duke.jpg">
             </div>
             <div class="profile-header">
                 Duke (Artificial Intelligence)<br />
-                <em>0</em>
+                <em data-ng-bind="pongCtrl.players.duke.score"></em>
             </div>
         </div>
     </div>

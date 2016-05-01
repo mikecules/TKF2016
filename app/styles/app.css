@@ -321,12 +321,20 @@ g.map-canvas.on-gpu {
     margin-left: 1rem;
     position: relative;
     overflow: hidden;
-    border: solid 2px #fff;
+    border: solid 3px #fff;
     -webkit-border-radius: 50%;
     -moz-border-radius: 50%;
     -ms-border-radius: 50%;
     -o-border-radius: 50%;
     border-radius: 50%;
+}
+
+.card .profile-img.arnold {
+    border-color: rgb(255, 0, 0);
+}
+
+.card .profile-img.duke {
+    border-color: rgb(0, 0, 255);
 }
 
 .card .profile-img > img {
@@ -352,6 +360,7 @@ g.map-canvas.on-gpu {
 
 .fps-container {
     text-align: center;
+    color: #000;
 }
 
 
