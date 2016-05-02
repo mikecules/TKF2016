@@ -17,7 +17,7 @@
               var _heatmap = this;
 
 
-              _heatmap.OFFSET = 20;
+              _heatmap.OFFSET = 40;
               _heatmap._data = _heatmap.prepareData(data);
               _heatmap._width = width || ($element.width());
               _heatmap._height = height || ($element.parent().height());
@@ -32,7 +32,7 @@
               // Create scale functions
               _heatmap._yScale = d3.scale.ordinal()
                   .domain(d3.range(_heatmap._data[0].length))
-                  .rangeRoundBands([_heatmap.OFFSET, _heatmap._height -  _heatmap.OFFSET * 3 ]);
+                  .rangeRoundBands([_heatmap.OFFSET, _heatmap._height -  _heatmap.OFFSET], 0.001);
 
               _heatmap._xScale = d3.scale.ordinal()
                   .domain(d3.range(scope.playCount))
@@ -57,18 +57,39 @@
               groups.enter().append('g')
                   .classed('player-history-col', true);
 
-              var bars = groups.selectAll('rect.bar')
+              var bars = groups.selectAll('circle.bar')
                   .data(function (d) {
                     return d;
                   });
 
+              var lastX = {};
               bars.enter()
-                  .append('rect')
+                  .append('circle')
                   .classed('bar', true)
-                  .attr('x', function(d) { return d.colIndex * _heatmap._xScale.rangeBand(); })
-                  .attr('y', function(d) { return d.rowIndex * _heatmap._yScale.rangeBand() + _heatmap.OFFSET; })
-                  .attr('width', _heatmap._xScale.rangeBand())
-                  .attr('height', _heatmap._yScale.rangeBand())
+                  .style( 'fill-opacity', 0)
+                  .attr({
+                    'r': 0,
+                    'cx': 0,
+                    'cy': function(d) { return d.rowIndex * _heatmap._yScale.rangeBand() + _heatmap.OFFSET; }
+                    })
+                  .transition()
+                  .delay(function (d, i) {
+                    return i / _heatmap._data.length * 500;
+                  })
+                  .attr('cx', function(d) {
+
+                    if (! angular.isDefined(lastX[d.colIndex])) {
+                      lastX[d.colIndex] = {};
+                    }
+                    if (! angular.isDefined(lastX[d.colIndex][d.rowIndex])) {
+                      lastX[d.colIndex][d.rowIndex] = 0;
+                    }
+                    lastX[d.colIndex][d.rowIndex] +=  d.colIndex * _heatmap._xScale.rangeBand() + d.value*20;
+                    return lastX[d.colIndex][d.rowIndex];
+                  })
+                  .attr('cy', function(d) { return d.rowIndex * _heatmap._yScale.rangeBand() + _heatmap.OFFSET; })
+                  .attr('r', function(d) {  return _heatmap._xScale.rangeBand()/2 + d.value*20; })
+                  //.attr('r', _heatmap._yScale.rangeBand()/2)
                   .style({'fill': function (d, i) {
                     return _heatmap._colourMap[i];
                   }, 'fill-opacity': function(d) {return d.value; }});
