@@ -49,6 +49,7 @@
               // Define Y axis
               _barchart._yAxis = d3.svg.axis()
                   .scale(_barchart._yScale)
+                  .tickFormat(function(d) { return (d * 100); })
                   .orient('left')
                   .ticks(5);
 
@@ -133,7 +134,7 @@
                   .attr('fill', '#ffffff');
 
               labels.text(function (d) {
-                return parseFloat(d.value).toFixed(2);
+                return parseFloat(d.value * 100).toFixed(1) + '%';
               })
               .attr('x', function() { return (_barchart._xScale.rangeBand() - this.getComputedTextLength()) / 2; })
 
