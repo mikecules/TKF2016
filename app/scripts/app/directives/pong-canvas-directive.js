@@ -491,7 +491,7 @@
                     .setPlayers(playerNames)
                     .setPlayersVelocityPercentageFn(function() { return 1; })
                     .setBallVelocityPercentageRangeFn(function() {
-                      var range = [1, 2];
+                      var range =  [2, 2]; //[1, 2];
 
                       return  [
                         Math.max(Math.random() * range[1], range[0]),

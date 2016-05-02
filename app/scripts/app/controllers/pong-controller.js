@@ -25,6 +25,7 @@
         };
 
         _ctrl.playerWinHistory = _playerWinHistory;
+        _ctrl.playCount = 50;
 
         _ctrl.players = [
           new VisPlayer('Duke')

@@ -62,16 +62,19 @@
                   .attr('clip-path', 'url(#chartArea)')
                   .attr('id', 'chart');
 
-              _barchart._colourFn = d3.scale.category10()
-                  .domain([0, _barchart._data.length])
+              _barchart._colourMap = [
+                'rgb(31, 119, 180)',
+                'rgb(44, 160, 44)',
+                'rgb(214, 39, 40)',
+                'rgb(148, 103, 189)',
+                'rgb(140, 86, 75)'
+              ];
 
 
             }
 
             Barchart.prototype.render = function () {
               var _barchart = this;
-
-              var colourInterpolator = _barchart._colourFn;
 
               var groups = _barchart._g.selectAll('g.bar')
                   .data(_barchart._data);
@@ -96,16 +99,16 @@
                   .attr('y', 0)
                   .attr('width', _barchart._xScale.rangeBand())
                   .style('fill', function (d) {
-                    return colourInterpolator(d._index);
+                    return _barchart._colourMap[d._index];
                   });
 
               bars.style('fill', function (d) {
-                    return  d3.rgb(colourInterpolator(d._index)).darker(2.5);
+                    return  d3.rgb(_barchart._colourMap[d._index]).darker(2.5);
                   })
                   .transition()
                   .delay(500)
                   .style('fill', function (d) {
-                    return colourInterpolator(d._index);
+                    return _barchart._colourMap[d._index];
                   })
                   .attr('height', function (d) {
                 return _barchart._yScale(d.value);

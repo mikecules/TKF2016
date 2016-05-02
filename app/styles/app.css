@@ -309,6 +309,13 @@ g.map-canvas.on-gpu {
     margin: 0rem 0rem 0rem 0.8rem;
 }
 
+.card-header {
+    font-weight: 600;
+    margin: 0 0;
+    padding: 1rem 0rem;
+    border-bottom: solid 2px #eee;
+}
+
 .card:first-child {
     margin-left: 0;
 }
@@ -317,6 +324,7 @@ g.map-canvas.on-gpu {
     width: 99.5%;
     height: 40rem;
     margin-top: 0.8rem;
+    padding: 1rem 1rem;
 }
 
 .player-action-overlay {
@@ -483,7 +491,7 @@ rect.bar {
 }
 
 .legend-option .legend-swatch.skill {
-    background-color: rgb(31, 119, 180)
+    background-color: rgb(31, 119, 180);
 }
 
 .legend-option .legend-swatch.energy {
