@@ -522,7 +522,7 @@
 
                 pongDirectiveCtrl.init($element);
 
-                $app.Pong(new pongDirectiveCtrl.CanvasWidget($element), webGLDrawUtilities)
+                var _game = $app.Pong(new pongDirectiveCtrl.CanvasWidget($element), webGLDrawUtilities)
                     .setPlayers(playerNames)
                     .setPlayersVelocityPercentageFn(function() { return 1; })
                     .setBallVelocityPercentageRangeFn(_regularPlayerBallVelolcity)
@@ -593,7 +593,7 @@
                         if (pongCtrl.isSoundOn === true) {
                           defendingPlayer.taunted();
                         }
-                        
+
                         scope.$apply(function() {
                           gameOverlay.show = true;
                           gameOverlay.isPlayerTaunt = true;
@@ -618,6 +618,18 @@
                       return false;
                     })
                     .start();
+
+
+                  scope.$watch(function() {
+                    return pongCtrl.isSoundOn;
+                  },
+                      function(isSoundOn) {
+
+                    if (typeof isSoundOn !== 'boolean') {
+                      return;
+                    }
+                    _game.setSoundOn(isSoundOn);
+                  });
 
                     ////////////////////////////////////////
 

@@ -477,6 +477,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         __playerVelocityPercentageRangeFn = function() {
           return 1.0;
         },
+        __isGameSoundOn = true,
         __robotVelocityPenalty = 0,
         __ROBOT_VELOCITY_PENALITY_PERCENTAGE = 1.0 - 9.0 / 10.0; // drop the robot's efficiency by this percentage. (10% of the delta time)
 
@@ -686,7 +687,10 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
           ___ballBoundingRect = boundingRect,
           ___velocity = {x: BALL_VELOCITY, y: BALL_VELOCITY},
           ___movingDirection = __DIRECTIONS.NONE,
-          ___radius = 0.1;
+          ___radius = 0.1,
+          ___audioCounter = 0,
+          ___isSoundOn = __isGameSoundOn,
+          ___audioHandles = [new Audio('audio/ball/ping-ball-0.mp3'), new Audio('audio/ball/ping-ball-1.mp3')];
 
 
       function ___init() {
@@ -726,12 +730,14 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         if (newXPosition < -___ballBoundingRect.x2 || newXPosition > ___ballBoundingRect.x2) {
           ___velocity.x = -___velocity.x;
           distanceX = -distanceX;
+          ___makeNoise();
         }
 
         // don't let the ball fall out of our bounding rect's Y axis
         if (newYPosition < -___ballBoundingRect.y2 || newYPosition > ___ballBoundingRect.y2) {
           ___velocity.y = -___velocity.y;
           distanceY = -distanceY;
+          ___makeNoise();
         }
 
         if (___velocity.x < 0) {
@@ -785,6 +791,17 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         ___movingDirection = direction;
       }
 
+      function ___makeNoise() {
+
+        if (! ___isSoundOn) {
+          return;
+        }
+
+        ___audioHandles[___audioCounter++].play();
+        ___audioCounter = ___audioCounter > 1 ? 0 : ___audioCounter;
+
+      }
+
       ___init();
 
 
@@ -792,6 +809,10 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
       this.draw = ___draw;
       this.update = ___update;
       this.setDirection = ___setDirection;
+
+      this.setSoundOn = function(isOn) {
+        ___isSoundOn = isOn === true ? true : false;
+      };
 
       this.setVelocityXYPercentage = function (vXPercentage, vYPercentage) {
         ___velocity.x = BALL_VELOCITY * vXPercentage;
@@ -816,6 +837,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
       this.rebound = function () {
         ___velocity.y = -___velocity.y;
+        ___makeNoise();
       };
 
 
@@ -1418,6 +1440,11 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
       }
 
       return __game;
+    };
+
+    __game.setSoundOn = function(isOn) {
+      __isGameSoundOn = isOn;
+      __ball.setSoundOn(isOn);
     };
 
   }
