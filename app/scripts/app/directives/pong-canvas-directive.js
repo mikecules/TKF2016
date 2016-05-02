@@ -509,7 +509,8 @@
                     playerNameMap = {},
                     pongCtrl = scope.pongCtrl,
                     players = pongCtrl.players,
-                    gameOverlay = pongCtrl.gameOverlay;
+                    gameOverlay = pongCtrl.gameOverlay,
+                    isGamePaused = true;
 
                 var OVERLAY_TIMEOUT_MS = 2000;
 
@@ -550,7 +551,7 @@
                       });
                     })
                     .on('gamePausedState', function(isPaused) {
-                      console.log(isPaused ? 'paused!': 'unpaused');
+                      isGamePaused = isPaused;
                     })
                     .on('ballWillRebound',function(pongPlayer) {
                       var game = this,
@@ -560,8 +561,9 @@
 
                       console.log(attackingPlayer.name() + ' WILL hit the ball!', 'WILL rebound to ' + defendingPlayer.name());
 
+                      var isLuckyDay = defendingPlayer.isLuckyDay();
 
-                      if (defendingPlayer.isLuckyDay()) {
+                      if (isLuckyDay) {
                         game.setBallVelocityPercentageRangeFn(_luckyPlayerBallVelolcity);
                       }
                       else {
@@ -569,8 +571,9 @@
                       }
 
                       var playerVelocity = defendingPlayer.getPlayerSpeed();
-                      if (playerVelocity > 1) {
-                        scope.$evalAsync(function(){});
+                      if (isLuckyDay || playerVelocity > 1) {
+                        // If the model has updated then do a digest
+                        scope.$evalAsync(angular.noop);
                       }
 
                       game.setPlayersVelocityPercentageFn(function() {
@@ -629,6 +632,15 @@
                       return;
                     }
                     _game.setSoundOn(isSoundOn);
+                  });
+
+                  $element.click(function() {
+                    if (! isGamePaused) {
+                      _game.pause(true);
+                    }
+                    else {
+                      _game.unpause(true);
+                    }
                   });
 
                     ////////////////////////////////////////

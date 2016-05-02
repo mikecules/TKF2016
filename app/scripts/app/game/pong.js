@@ -499,10 +499,10 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
       // display the right messaging
       if (__isGamePaused() === true && __hasGameStarted) {
-        __HUDContext.fillText('Press Space Bar to unpause...', 90, 115);
+        __HUDContext.fillText('Press Space Bar/Click to unpause...', 70, 115);
       }
       else { // game intro messaging
-        __HUDContext.fillText('Press Space Bar to start...', 100, 145);
+        __HUDContext.fillText('Press Space Bar/Click to start...', 80, 145);
       }
 
       // show the 2D HUD Canvas

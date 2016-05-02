@@ -142,7 +142,7 @@
             var characteristic = _characteristics[characteristicIndex];
             var randomChance = Math.random();
             var hasEffect = randomChance >= 1 - (characteristic.successWeight * characteristic.value);
-            console.log(randomChance, 1 - (characteristic.successWeight * characteristic.value), hasEffect);
+            //console.log(randomChance, 1 - (characteristic.successWeight * characteristic.value), hasEffect);
             return hasEffect;
           }
 
@@ -269,6 +269,7 @@
             if (isLuckyDay) {
               _characteristics[CHARACTERISTICS.ENERGY].value += 0.05;
               _characteristics[CHARACTERISTICS.ENERGY].value = Math.min(1, _characteristics[CHARACTERISTICS.ENERGY].value);
+              _copyCharacteristics();
             }
 
             return isLuckyDay;
@@ -299,6 +300,10 @@
 
             if (_doesCharacteristicHaveEffect(CHARACTERISTICS.LUCK)) {
               speed += speedInc/2;
+            }
+
+            if (speed > 1) {
+              _copyCharacteristics();
             }
 
 
