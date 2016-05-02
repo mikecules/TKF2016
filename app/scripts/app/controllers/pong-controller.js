@@ -60,8 +60,49 @@
                 playerWin: function() {},
                 playerLose: function() {}
               },
-              _characteristicsCopy = _characteristics.slice();
+              _characteristicsCopy;
 
+
+          function _init() {
+            _randomizeCharacteristics();
+            _copyCharacteristics();
+          }
+
+          function _randomizeCharacteristics() {
+            var maxWeightVal = 1/_characteristics.length,
+                minWeightVal = maxWeightVal/2,
+                leftOverWeight,
+                newMaxWeightVal = maxWeightVal,
+                weightTotal = 0,
+                maxVal = 0.35,
+                minVal = maxVal/2;
+
+            for (var i = 0; i < _characteristics.length; i++) {
+              var attr = _characteristics[i];
+              attr.value = Math.random() * maxVal;
+              attr.value = +parseFloat(Math.max(minVal, attr.value)).toFixed(2);
+
+              var randomWeight = +parseFloat(Math.random() * newMaxWeightVal).toFixed(2);
+
+              leftOverWeight = +parseFloat(newMaxWeightVal - randomWeight).toFixed(2);
+              newMaxWeightVal = leftOverWeight + maxWeightVal;
+
+              attr.successWeight = Math.max(minWeightVal, randomWeight);
+              weightTotal += attr.successWeight;
+            }
+
+            console.log(_characteristics, leftOverWeight, weightTotal);
+
+            if (weightTotal < 1) {
+              leftOverWeight = +parseFloat(1 - weightTotal).toFixed(2);
+              var randomIndex = Math.round((_characteristics.length - 1) * Math.random());
+              _characteristics[randomIndex].successWeight = leftOverWeight;
+              weightTotal += leftOverWeight;
+            }
+
+            console.log(_characteristics, leftOverWeight, weightTotal);
+
+          }
 
           function _updateCharacteristics(hasWon) {
             var incPropertyName = hasWon === true ? 'winInc' : 'loseInc';
@@ -148,6 +189,7 @@
             return _visPlayer;
           };
 
+          _init();
         }
       });
 })();
