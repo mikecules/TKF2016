@@ -36,6 +36,10 @@
         ];
 
 
+        var _staticSuccessWeights = null;
+
+
+
         function VisPlayer(name) {
 
           var CHARACTERISTICS = {
@@ -51,9 +55,9 @@
               _score = 0,
               _characteristics = [
                 {attr: 'Skill', value: 0.1, successWeight: 0.2, winInc: 0.05, loseInc: 0.02},
-                {attr: 'Energy', value: 0.5, successWeight: 0.2, winInc: 0.02, loseInc: 0.01},
+                {attr: 'Energy', value: 0.5, successWeight: 0.2, winInc: 0.02, loseInc: -0.01},
                 {attr: 'Confidence', value: 0.5, successWeight: 0.2, winInc: 0.1, loseInc: -0.05},
-                {attr: 'Aggression', value: 0.5, successWeight: 0.2, winInc: 0, loseInc: 0.1},
+                {attr: 'Aggression', value: 0.5, successWeight: 0.2, winInc: -0.1, loseInc: 0.1},
                 {attr: 'Luck', value: 0.5, successWeight: 0.2, winInc: -0.05, loseInc: 0.05}
               ],
               _eventCallbacks = {
@@ -71,16 +75,27 @@
           function _randomizeCharacteristics() {
             var maxWeightVal = 1/_characteristics.length,
                 minWeightVal = maxWeightVal/2,
-                leftOverWeight,
+                leftOverWeight = 0,
                 newMaxWeightVal = maxWeightVal,
                 weightTotal = 0,
-                maxVal = 0.35,
-                minVal = maxVal/2;
+                maxVal = 0.30,
+                minVal = maxVal/2,
+                isSuccessWeightsDefined = _staticSuccessWeights ? true : false;
+
+
+            if (! isSuccessWeightsDefined) {
+              _staticSuccessWeights = {};
+            }
 
             for (var i = 0; i < _characteristics.length; i++) {
               var attr = _characteristics[i];
               attr.value = Math.random() * maxVal;
               attr.value = +parseFloat(Math.max(minVal, attr.value)).toFixed(2);
+
+              if (isSuccessWeightsDefined) {
+                attr.successWeight = _staticSuccessWeights[i];
+                continue;
+              }
 
               var randomWeight = +parseFloat(Math.random() * newMaxWeightVal).toFixed(2);
 
@@ -88,20 +103,30 @@
               newMaxWeightVal = leftOverWeight + maxWeightVal;
 
               attr.successWeight = Math.max(minWeightVal, randomWeight);
+              _staticSuccessWeights[i] = attr.successWeight;
               weightTotal += attr.successWeight;
             }
 
-            console.log(_characteristics, leftOverWeight, weightTotal);
 
-            if (weightTotal < 1) {
+            if ((leftOverWeight * 100) > 0) {
               leftOverWeight = +parseFloat(1 - weightTotal).toFixed(2);
               var randomIndex = Math.round((_characteristics.length - 1) * Math.random());
-              _characteristics[randomIndex].successWeight = leftOverWeight;
+              _characteristics[randomIndex].successWeight += leftOverWeight;
+              _staticSuccessWeights[randomIndex] = _characteristics[randomIndex].successWeight;
               weightTotal += leftOverWeight;
             }
 
-            console.log(_characteristics, leftOverWeight, weightTotal);
+            console.log(_characteristics, weightTotal);
 
+
+          }
+
+          function _doesCharacteristicHaveEffect(characteristicIndex) {
+            var characteristic = _characteristics[characteristicIndex];
+            var randomChance = Math.random();
+            var hasEffect = randomChance >= 1 - (characteristic.successWeight * characteristic.value);
+            console.log(randomChance, 1 - (characteristic.successWeight * characteristic.value), hasEffect);
+            return hasEffect;
           }
 
           function _updateCharacteristics(hasWon) {
@@ -138,9 +163,11 @@
           };
 
           _visPlayer.willTaunt = function() {
+            // based on pure aggression (make random)
             var tauntProbability =  +parseFloat(Math.random()).toFixed(2);
-            console.log(this.name() + ' taunt prob: ', tauntProbability, tauntProbability > (1 - _characteristics[CHARACTERISTICS.AGGRESSION].value));
-            return tauntProbability >= (1 - _characteristics[CHARACTERISTICS.AGGRESSION].value);
+            var isGonnaTaunt = tauntProbability >= (1 - _characteristics[CHARACTERISTICS.AGGRESSION].value);
+            console.log(this.name() + ' TAUNTED PLAYER: ', isGonnaTaunt);
+            return isGonnaTaunt;
           };
 
           _visPlayer.characteristics = function() {
@@ -149,7 +176,15 @@
 
           _visPlayer.beingTaunted = function() {
             var randomAffectedAttributeIndex = Math.round(Math.random() * 3) + 1; // Do not include Skill
-            var positiveOrNegativeInfluenceProperty = (Math.random() > 0.5) ? 'winInc' : 'loseInc';
+
+            // positive based on confidence/skill - aggression OR lucky!
+            var positiveInfluenceEffect = _doesCharacteristicHaveEffect(CHARACTERISTICS.SKILL) ||
+                _doesCharacteristicHaveEffect(CHARACTERISTICS.CONFIDENCE);
+
+            var positivelyEffected = positiveInfluenceEffect  && ! _doesCharacteristicHaveEffect(CHARACTERISTICS.AGGRESSION) ||
+                _doesCharacteristicHaveEffect(CHARACTERISTICS.LUCK);
+
+            var positiveOrNegativeInfluenceProperty =  positivelyEffected ? 'winInc' : 'loseInc';
 
             var attr = _characteristics[randomAffectedAttributeIndex];
             console.log(attr, attr[positiveOrNegativeInfluenceProperty], positiveOrNegativeInfluenceProperty);
@@ -187,6 +222,53 @@
             }
 
             return _visPlayer;
+          };
+
+          _visPlayer.isLuckyDay = function() {
+            // Luckyness does not have a weight it's completely random
+            var luckProbability =  +parseFloat(Math.random()).toFixed(2);
+            var isLuckyDay = luckProbability >= (1 - _characteristics[CHARACTERISTICS.LUCK].value);
+            console.log(this.name() + '\'s Lucky Day: ',isLuckyDay);
+
+            if (isLuckyDay) {
+              _characteristics[CHARACTERISTICS.ENERGY].value += 0.05;
+              _characteristics[CHARACTERISTICS.ENERGY].value = Math.min(1, _characteristics[CHARACTERISTICS.ENERGY].value);
+            }
+
+            return isLuckyDay;
+          };
+
+          _visPlayer.getPlayerSpeed = function() {
+            // speed = aggression + energy
+            var speed = 1.0,
+                speedInc = 0.2;
+
+            if (_doesCharacteristicHaveEffect(CHARACTERISTICS.AGGRESSION)){
+              speed += speedInc;
+              // Aggression Penalty
+              _characteristics[CHARACTERISTICS.ENERGY].value -= 0.05;
+              _characteristics[CHARACTERISTICS.ENERGY].value = Math.max(0, _characteristics[CHARACTERISTICS.ENERGY].value);
+            }
+
+            if (_doesCharacteristicHaveEffect(CHARACTERISTICS.ENERGY)) {
+              // Bonus for using energy
+              speed += speedInc + 0.1;
+
+              // Regular Speed usage penalty if skill does not prevent it
+              if (! _doesCharacteristicHaveEffect(CHARACTERISTICS.SKILL)) {
+                _characteristics[CHARACTERISTICS.ENERGY].value -= 0.02;
+                _characteristics[CHARACTERISTICS.ENERGY].value = Math.max(0, _characteristics[CHARACTERISTICS.ENERGY].value);
+              }
+            }
+
+            if (_doesCharacteristicHaveEffect(CHARACTERISTICS.LUCK)) {
+              speed += speedInc/2;
+            }
+
+
+            console.log(this.name() + ' VELOCITY: ', speed);
+            return speed;
+
           };
 
           _init();

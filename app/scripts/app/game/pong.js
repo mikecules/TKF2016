@@ -446,6 +446,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         __eventCallbacks = {
           gameWin: function(){},
           gamePausedState: function(){},
+          ballWillRebound: function() {},
           ballRebound: function(){}
         },
         __map = null,
@@ -1321,10 +1322,12 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
           // alright, if the paddle is in place where the ball is moving rebound the ball
           if (x1 <= ballPosition.x && ballPosition.x <= x2 && inPlayerYRange) {
             // set random velocity on rebound
+
+            __eventCallbacks.ballWillRebound.call(__game, player);
+
             var ballVelocities = __ballVelocityPercentageRangeFn();
 
             __ball.setVelocityXYPercentage(ballVelocities[0], ballVelocities[1]);
-
 
             // Call Asynchronously
             setTimeout((function(p) {

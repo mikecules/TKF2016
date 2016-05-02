@@ -468,6 +468,41 @@
 
                 /////////////////////
 
+                function _getAngularPlayer(pongPlayer) {
+                  var attackingPlayer,
+                      defendingPlayer;
+
+                  // convert pong player into angular player
+                  if (pongPlayer.getName() !== playerNames[0]) {
+                    defendingPlayer = players[0];
+                    attackingPlayer = players[1];
+                  }
+                  else {
+                    defendingPlayer = players[1];
+                    attackingPlayer = players[0];
+                  }
+
+                  return {
+                    'attackingPlayer': attackingPlayer,
+                    'defendingPlayer': defendingPlayer
+                  };
+
+                }
+
+                function _regularPlayerBallVelolcity() {
+                  var range =  [1, 2];
+
+                  return  [
+                    Math.max(Math.random() * range[1], range[0]),
+                    Math.max(Math.random() * range[1], range[0])
+                  ];
+                }
+
+                function _luckyPlayerBallVelolcity() {
+                  var range =  [1, 1];
+
+                  return range;
+                }
 
 
                 var playerNames = [],
@@ -490,14 +525,7 @@
                 $app.Pong(new pongDirectiveCtrl.CanvasWidget($element), webGLDrawUtilities)
                     .setPlayers(playerNames)
                     .setPlayersVelocityPercentageFn(function() { return 1; })
-                    .setBallVelocityPercentageRangeFn(function() {
-                      var range =  [2, 2]; //[1, 2];
-
-                      return  [
-                        Math.max(Math.random() * range[1], range[0]),
-                        Math.max(Math.random() * range[1], range[0])
-                      ];
-                    })
+                    .setBallVelocityPercentageRangeFn(_regularPlayerBallVelolcity)
                     .on('gameWin', function(winner, losers) {
 
                       var game = this;
@@ -524,22 +552,39 @@
                     .on('gamePausedState', function(isPaused) {
                       console.log(isPaused ? 'paused!': 'unpaused');
                     })
-
-                    .on('ballRebound', function(player) {
-                      //console.log(playerNames, players, player.getName());
+                    .on('ballWillRebound',function(pongPlayer) {
                       var game = this,
-                          attackingPlayer,
-                          defendingPlayer;
+                          angularPlayers = _getAngularPlayer(pongPlayer),
+                          attackingPlayer = angularPlayers.attackingPlayer,
+                          defendingPlayer = angularPlayers.defendingPlayer;
 
-                      // convert pong player into angular player
-                      if (player.getName() !== playerNames[0]) {
-                        defendingPlayer = players[0];
-                        attackingPlayer = players[1];
+                      console.log(attackingPlayer.name() + ' WILL hit the ball!', 'WILL rebound to ' + defendingPlayer.name());
+
+
+                      if (defendingPlayer.isLuckyDay()) {
+                        game.setBallVelocityPercentageRangeFn(_luckyPlayerBallVelolcity);
                       }
                       else {
-                        defendingPlayer = players[1];
-                        attackingPlayer = players[0];
+                        game.setBallVelocityPercentageRangeFn(_regularPlayerBallVelolcity)
                       }
+
+                      var playerVelocity = defendingPlayer.getPlayerSpeed();
+                      if (playerVelocity > 1) {
+                        scope.$evalAsync(function(){});
+                      }
+
+                      game.setPlayersVelocityPercentageFn(function() {
+                        return playerVelocity;
+                      });
+
+
+                    })
+                    .on('ballRebound', function(pongPlayer) {
+                      //console.log(playerNames, players, player.getName());
+                      var game = this,
+                          angularPlayers = _getAngularPlayer(pongPlayer),
+                          attackingPlayer = angularPlayers.attackingPlayer,
+                          defendingPlayer = angularPlayers.defendingPlayer;
 
                       if (attackingPlayer.willTaunt()) {
                         game.pause();
