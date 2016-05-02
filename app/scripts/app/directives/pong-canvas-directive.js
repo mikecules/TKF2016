@@ -587,9 +587,13 @@
                           defendingPlayer = angularPlayers.defendingPlayer;
 
                       if (attackingPlayer.willTaunt()) {
-                        game.pause();
-                        defendingPlayer.beingTaunted();
 
+                        game.pause();
+
+                        if (pongCtrl.isSoundOn === true) {
+                          defendingPlayer.taunted();
+                        }
+                        
                         scope.$apply(function() {
                           gameOverlay.show = true;
                           gameOverlay.isPlayerTaunt = true;

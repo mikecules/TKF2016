@@ -1,7 +1,12 @@
 <div class="canvas-container">
     <div class="caption-body">
         <div class="fps-container">&nbsp;</div>
-        <div class="caption"></div>
+        <div class="controls">
+            <a data-ng-click="pongCtrl.isSoundOn = ! pongCtrl.isSoundOn" href="javascript:void(0)">
+                <i class="fa fa-volume-up" data-ng-if="pongCtrl.isSoundOn"></i>
+                <i class="fa fa-volume-off" data-ng-if="! pongCtrl.isSoundOn"></i>
+            </a>
+        </div>
     </div>
     <div class="canvas-body"></div>
     <div class="detail-body"></div>

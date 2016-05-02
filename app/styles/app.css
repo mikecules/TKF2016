@@ -336,7 +336,7 @@ g.map-canvas.on-gpu {
     width: 100%;
     height: 100%;
     transition: all 0.2s ease-in-out;
-    /*pointer-events: none;*/
+    pointer-events: none;
     display: block;
     opacity: 0;
     padding: 2rem 2rem;
@@ -414,12 +414,6 @@ g.map-canvas.on-gpu {
     width: auto;
 }
 
-.bar-chart {
-    height: 100%;
-    width: 100%;
-}
-
-
 .pong-game-container .canvas-container {
     margin: 0 auto;
     color: #fff;
@@ -434,6 +428,7 @@ g.map-canvas.on-gpu {
 .fps-container {
     text-align: center;
     color: #000;
+    display: inline-block;
 }
 
 
@@ -444,7 +439,23 @@ g.map-canvas.on-gpu {
     left:0;
 }
 
+.controls {
+    display: inline-block;
+    float: right;
+    color: #000;
+}
+
+.controls a {
+    font-size: 1.4rem;
+    color: #555;
+}
+
 /* Bar chart */
+
+.bar-chart {
+    height: 100%;
+    width: 100%;
+}
 
 rect.bar {
     fill: #555;

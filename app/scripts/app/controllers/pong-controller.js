@@ -24,15 +24,31 @@
           message: ''
         };
 
+        _ctrl.isSoundOn = true;
+
         _ctrl.playerWinHistory = _playerWinHistory;
         _ctrl.playCount = 50;
 
         _ctrl.players = [
           new VisPlayer('Duke')
-              .on('playerWin', winFn),
+              .on('playerWin', winFn)
+              .setTaunts(
+                  [
+                    'audio/arnold/daddy.mp3',
+                    'audio/arnold/deep.mp3',
+                    'audio/arnold/surprise.mp3',
+                    'audio/arnold/knowu.mp3'
+                  ]),
 
           new VisPlayer('Arnold')
               .on('playerWin', winFn)
+              .setTaunts(
+                  [
+                    'audio/duke/equal-opportunity.mp3',
+                    'audio/duke/pissed-off.mp3',
+                    'audio/duke/wasting-time.mp3',
+                    'audio/duke/wasted.mp3'
+                  ])
         ];
 
 
@@ -64,6 +80,7 @@
                 playerWin: function() {},
                 playerLose: function() {}
               },
+              _tauntsAudioList = [],
               _characteristicsCopy;
 
 
@@ -168,6 +185,25 @@
             var isGonnaTaunt = tauntProbability >= (1 - _characteristics[CHARACTERISTICS.AGGRESSION].value);
             console.log(this.name() + ' TAUNTED PLAYER: ', isGonnaTaunt);
             return isGonnaTaunt;
+          };
+
+          _visPlayer.setTaunts = function(taunts) {
+            if (angular.isArray(taunts)) {
+              _tauntsAudioList = taunts;
+            }
+
+            return _visPlayer;
+          };
+
+          _visPlayer.taunted = function() {
+
+            if (_tauntsAudioList.length === 0) {
+              return;
+            }
+
+            var audioFile = _tauntsAudioList[Math.round(Math.random() * (_tauntsAudioList.length - 1))];
+            var audio = new Audio(audioFile);
+            audio.play();
           };
 
           _visPlayer.characteristics = function() {
