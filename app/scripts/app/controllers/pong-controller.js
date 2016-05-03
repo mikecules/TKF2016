@@ -52,10 +52,6 @@
         ];
 
 
-        var _staticSuccessWeights = null;
-
-
-
         function VisPlayer(name) {
 
           var CHARACTERISTICS = {
@@ -70,20 +66,22 @@
               _name = name || 'Player',
               _score = 0,
               _characteristics = [
-                {attr: 'Skill', value: 0.1, successWeight: 0.2, winInc: 0.05, loseInc: 0.02},
-                {attr: 'Energy', value: 0.5, successWeight: 0.2, winInc: 0.02, loseInc: -0.01},
-                {attr: 'Confidence', value: 0.5, successWeight: 0.2, winInc: 0.1, loseInc: -0.05},
-                {attr: 'Aggression', value: 0.5, successWeight: 0.2, winInc: -0.1, loseInc: 0.1},
-                {attr: 'Luck', value: 0.5, successWeight: 0.2, winInc: -0.05, loseInc: 0.05}
+                {attr: 'Skill', value: 0.1, winInc: 0.05, loseInc: 0.02},
+                {attr: 'Energy', value: 0.5, winInc: 0.05, loseInc: -0.01},
+                {attr: 'Confidence', value: 0.5, winInc: 0.1, loseInc: -0.05},
+                {attr: 'Aggression', value: 0.5, winInc: -0.1, loseInc: 0.1},
+                {attr: 'Luck', value: 0.5, winInc: -0.05, loseInc: 0.05}
               ],
               _eventCallbacks = {
-                playerWin: function() {},
-                playerLose: function() {}
+                playerWin: function() {
+                },
+                playerLose: function() {
+                }
               },
               _tauntsAudioList = [],
+              _audioResourceHandles = {},
               _lastTauntChosenIndex = null,
               _characteristicsCopy;
-
 
           function _init() {
             _randomizeCharacteristics();
@@ -91,58 +89,23 @@
           }
 
           function _randomizeCharacteristics() {
-            var maxWeightVal = 1/_characteristics.length,
-                minWeightVal = maxWeightVal/2,
-                leftOverWeight = 0,
-                newMaxWeightVal = maxWeightVal,
-                weightTotal = 0,
-                maxVal = 0.30,
-                minVal = maxVal/2,
-                isSuccessWeightsDefined = _staticSuccessWeights ? true : false;
-
-
-            if (! isSuccessWeightsDefined) {
-              _staticSuccessWeights = {};
-            }
+            var maxVal = 0.30,
+                minVal = maxVal / 2;
 
             for (var i = 0; i < _characteristics.length; i++) {
               var attr = _characteristics[i];
               attr.value = Math.random() * maxVal;
               attr.value = +parseFloat(Math.max(minVal, attr.value)).toFixed(2);
-
-              if (isSuccessWeightsDefined) {
-                attr.successWeight = _staticSuccessWeights[i];
-                continue;
-              }
-
-              var randomWeight = +parseFloat(Math.random() * newMaxWeightVal).toFixed(2);
-
-              leftOverWeight = +parseFloat(newMaxWeightVal - randomWeight).toFixed(2);
-              newMaxWeightVal = leftOverWeight + maxWeightVal;
-
-              attr.successWeight = Math.max(minWeightVal, randomWeight);
-              _staticSuccessWeights[i] = attr.successWeight;
-              weightTotal += attr.successWeight;
             }
 
-
-            if ((leftOverWeight * 100) > 0) {
-              leftOverWeight = +parseFloat(1 - weightTotal).toFixed(2);
-              var randomIndex = Math.round((_characteristics.length - 1) * Math.random());
-              _characteristics[randomIndex].successWeight += leftOverWeight;
-              _staticSuccessWeights[randomIndex] = _characteristics[randomIndex].successWeight;
-              weightTotal += leftOverWeight;
-            }
-
-            console.log(_characteristics, weightTotal);
-
+            console.log(_characteristics);
 
           }
 
           function _doesCharacteristicHaveEffect(characteristicIndex) {
             var characteristic = _characteristics[characteristicIndex];
             var randomChance = Math.random();
-            var hasEffect = randomChance >= 1 - (characteristic.successWeight * characteristic.value);
+            var hasEffect = randomChance >= 1 - characteristic.value;
             //console.log(randomChance, 1 - (characteristic.successWeight * characteristic.value), hasEffect);
             return hasEffect;
           }
@@ -182,8 +145,7 @@
 
           _visPlayer.willTaunt = function() {
             // based on pure aggression (make random)
-            var tauntProbability =  +parseFloat(Math.random()).toFixed(2);
-            var isGonnaTaunt = tauntProbability >= (1 - _characteristics[CHARACTERISTICS.AGGRESSION].value);
+            var isGonnaTaunt = _doesCharacteristicHaveEffect(CHARACTERISTICS.AGGRESSION);
             console.log(this.name() + ' TAUNTED PLAYER: ', isGonnaTaunt);
             return isGonnaTaunt;
           };
@@ -204,15 +166,19 @@
 
             var tauntIndex = Math.round(Math.random() * (_tauntsAudioList.length - 1));
 
-            while (tauntIndex === _lastTauntChosenIndex) {
+            while (_tauntsAudioList.length > 1 && tauntIndex === _lastTauntChosenIndex) {
               tauntIndex = Math.round(Math.random() * (_tauntsAudioList.length - 1));
             }
 
             _lastTauntChosenIndex = tauntIndex;
 
             var audioFile = _tauntsAudioList[tauntIndex];
-            var audio = new Audio(audioFile);
-            audio.play();
+
+            if (! angular.isDefined(_audioResourceHandles[audioFile])) {
+              _audioResourceHandles[audioFile] = new Audio(audioFile);
+            }
+
+            _audioResourceHandles[audioFile].play();
           };
 
           _visPlayer.characteristics = function() {
@@ -226,10 +192,10 @@
             var positiveInfluenceEffect = _doesCharacteristicHaveEffect(CHARACTERISTICS.SKILL) ||
                 _doesCharacteristicHaveEffect(CHARACTERISTICS.CONFIDENCE);
 
-            var positivelyEffected = positiveInfluenceEffect  && ! _doesCharacteristicHaveEffect(CHARACTERISTICS.AGGRESSION) ||
+            var positivelyEffected = positiveInfluenceEffect && !_doesCharacteristicHaveEffect(CHARACTERISTICS.AGGRESSION) ||
                 _doesCharacteristicHaveEffect(CHARACTERISTICS.LUCK);
 
-            var positiveOrNegativeInfluenceProperty =  positivelyEffected ? 'winInc' : 'loseInc';
+            var positiveOrNegativeInfluenceProperty = positivelyEffected ? 'winInc' : 'loseInc';
 
             var attr = _characteristics[randomAffectedAttributeIndex];
             console.log(attr, attr[positiveOrNegativeInfluenceProperty], positiveOrNegativeInfluenceProperty);
@@ -260,7 +226,6 @@
             return _score;
           };
 
-
           _visPlayer.on = function(eventName, fn) {
             if (typeof fn === 'function' && typeof _eventCallbacks[eventName] !== 'undefined') {
               _eventCallbacks[eventName] = fn;
@@ -271,9 +236,8 @@
 
           _visPlayer.isLuckyDay = function() {
             // Luckyness does not have a weight it's completely random
-            var luckProbability =  +parseFloat(Math.random()).toFixed(2);
-            var isLuckyDay = luckProbability >= (1 - _characteristics[CHARACTERISTICS.LUCK].value);
-            console.log(this.name() + '\'s Lucky Day: ',isLuckyDay);
+            var isLuckyDay = _doesCharacteristicHaveEffect(CHARACTERISTICS.LUCK);
+            console.log(this.name() + '\'s Lucky Day: ', isLuckyDay);
 
             if (isLuckyDay) {
               _characteristics[CHARACTERISTICS.ENERGY].value += 0.05;
@@ -284,12 +248,19 @@
             return isLuckyDay;
           };
 
-          _visPlayer.getPlayerSpeed = function() {
+          _visPlayer.getPlayerSpeed = function(ballVelocityPercentages) {
             // speed = aggression + energy
             var speed = 1.0,
                 speedInc = 0.2;
 
-            if (_doesCharacteristicHaveEffect(CHARACTERISTICS.AGGRESSION)){
+            var highestBallVelocity = Math.max(ballVelocityPercentages.x, ballVelocityPercentages.y);
+
+            // we don't want to speed up here
+            if (highestBallVelocity === 1) {
+              return speed;
+            }
+
+            if (_doesCharacteristicHaveEffect(CHARACTERISTICS.AGGRESSION)) {
               speed += speedInc;
               // Aggression Penalty
               _characteristics[CHARACTERISTICS.ENERGY].value -= 0.05;
@@ -301,20 +272,19 @@
               speed += speedInc + 0.1;
 
               // Regular Speed usage penalty if skill does not prevent it
-              if (! _doesCharacteristicHaveEffect(CHARACTERISTICS.SKILL)) {
+              if (!_doesCharacteristicHaveEffect(CHARACTERISTICS.SKILL)) {
                 _characteristics[CHARACTERISTICS.ENERGY].value -= 0.02;
                 _characteristics[CHARACTERISTICS.ENERGY].value = Math.max(0, _characteristics[CHARACTERISTICS.ENERGY].value);
               }
             }
 
             if (_doesCharacteristicHaveEffect(CHARACTERISTICS.LUCK)) {
-              speed += speedInc/2;
+              speed += speedInc / 2;
             }
 
             if (speed > 1) {
               _copyCharacteristics();
             }
-
 
             console.log(this.name() + ' VELOCITY: ', speed);
             return speed;

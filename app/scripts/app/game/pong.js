@@ -2,18 +2,15 @@
 
 var $app = $app || {};
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Pong!!!
 // @author: Michael Moncada <michael.moncada@gmail.com>
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-$app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
-
+$app.Pong = function(canvasModalWidget, webGLDrawUtilities) {
 
   var _game = null,
       _gl = null,
       _glProgram = null;
-
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   //  _Sphere(radius) Constructor method is used to represent and Sphere with a radius
@@ -56,23 +53,19 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
       _gl.bindBuffer(_gl.ELEMENT_ARRAY_BUFFER, __sphereVertexIndexBuffer);
       _gl.bufferData(_gl.ELEMENT_ARRAY_BUFFER, __sphereVertexIndexBuffer.items, _gl.STATIC_DRAW);
 
-
       // create the buffer for vertex positions indexes and assign it to that buffer to use for later
       __sphereVertexNormalBuffer = _gl.createBuffer();
       __sphereVertexNormalBuffer.itemSize = 3;
       __sphereVertexNormalBuffer.numItems = __sphereData.vertexNormals.length / __sphereVertexNormalBuffer.itemSize;
       __sphereVertexNormalBuffer.items = new Float32Array(__sphereData.vertexNormals);
 
-
       _gl.bindBuffer(_gl.ARRAY_BUFFER, __sphereVertexNormalBuffer);
       _gl.bufferData(_gl.ARRAY_BUFFER, __sphereVertexNormalBuffer.items, _gl.STATIC_DRAW);
-
 
     }
 
     // draw itself
     function __draw() {
-
 
       mat4.multiply(__modelMatrix, __translationMatrix, __rotationMatrix);
       mat4.multiply(__modelMatrix, __modelMatrix, __scaleMatrix);
@@ -85,7 +78,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
       // Perspective * (View * Model)
       mat4.multiply(__PVMMatrix, _glProgram.customAttribs.perspectiveMatrix, __PVMMatrix);
-
 
       // alright now assign the matrices back to the location of our vertex shader
       _gl.uniformMatrix3fv(_glProgram.customAttribs.u_NormalMatrixRef, false, __normalMatrix);
@@ -133,7 +125,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
     }
 
-
     // scale the sphere by s units
     function __scale(s) {
       if (typeof s === 'number') {
@@ -169,7 +160,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
     this.translate = __translate;
 
     // sets the colour of the primitive
-    this.setColour = function (r, g, b, a) {
+    this.setColour = function(r, g, b, a) {
       __colour.r = r;
       __colour.g = g;
       __colour.b = b;
@@ -178,10 +169,9 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
       return this;
     };
 
-    this.getRadius = function () {
+    this.getRadius = function() {
       return __radius;
     };
-
 
     return this;
   }
@@ -238,12 +228,10 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
       _gl.bindBuffer(_gl.ARRAY_BUFFER, __quadVertexNormalBuffer);
       _gl.bufferData(_gl.ARRAY_BUFFER, __quadVertexNormalBuffer.items, _gl.STATIC_DRAW);
 
-
     }
 
     // this function works in EXACTLY the same way as our sphere __draw function! Please refer to that
     function __draw() {
-
 
       mat4.multiply(__modelMatrix, __translationMatrix, __rotationMatrix);
       mat4.multiply(__modelMatrix, __modelMatrix, __scaleMatrix);
@@ -256,23 +244,18 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
       __shouldUpdateMatrices = false;
 
-
       _gl.uniformMatrix3fv(_glProgram.customAttribs.u_NormalMatrixRef, false, __normalMatrix);
       _gl.uniformMatrix4fv(_glProgram.customAttribs.u_PVMMatrixRef, false, __PVMMatrix);
-
 
       _gl.bindBuffer(_gl.ARRAY_BUFFER, __quadVertexPositionBuffer);
       _gl.vertexAttribPointer(_glProgram.customAttribs.a_PositionRef, __quadVertexPositionBuffer.itemSize, _gl.FLOAT, false, 0, 0);
       _gl.enableVertexAttribArray(_glProgram.customAttribs.a_PositionRef);
 
-
       _gl.bindBuffer(_gl.ELEMENT_ARRAY_BUFFER, __quadVertexIndexBuffer);
-
 
       _gl.bindBuffer(_gl.ARRAY_BUFFER, __quadVertexNormalBuffer);
       _gl.vertexAttribPointer(_glProgram.customAttribs.a_VertexNormalRef, __quadVertexNormalBuffer.itemSize, _gl.FLOAT, false, 0, 0);
       _gl.enableVertexAttribArray(_glProgram.customAttribs.a_VertexNormalRef);
-
 
       _gl.uniform4f(_glProgram.customAttribs.u_FragColourRef, __colour.r, __colour.g, __colour.b, __colour.a);
 
@@ -301,7 +284,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
     }
 
-
     function __scale(s) {
       if (typeof s === 'number') {
         mat4.scale(__scaleMatrix, __scaleMatrix, vec3.fromValues(s, s, s));
@@ -319,7 +301,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
     __init();
 
-
     ////////////////////////////////////////////////////////
     // _Quad public API
     ////////////////////////////////////////////////////////
@@ -331,7 +312,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
     this.translate = __translate;
 
-    this.setColour = function (r, g, b, a) {
+    this.setColour = function(r, g, b, a) {
       __colour.r = r;
       __colour.g = g;
       __colour.b = b;
@@ -340,12 +321,9 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
       return this;
     };
 
-
     return this;
 
-
   }
-
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //  _init() sets some gl program defaults and grabs the location to our attributes/uniforms in our shaders...
@@ -359,7 +337,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
       throw new Error('Could not run lightingExample() WebGL Demo!');
     }
 
-
     // Set clear color to black, fully opaque
     _gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -370,7 +347,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
     _glProgram = canvasModalWidget.setGLVertexAndFragmentShaders('#v-shader-pong', '#f-shader-pong');
     _glProgram.customAttribs = {};
 
-
     // Get the storage locations of all the customizable shader variables
     _glProgram.customAttribs.a_PositionRef = _gl.getAttribLocation(_glProgram, 'a_Position'),
         _glProgram.customAttribs.a_VertexNormalRef = _gl.getAttribLocation(_glProgram, 'a_VertexNormal'),
@@ -379,21 +355,17 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         _glProgram.customAttribs.u_PVMMatrixRef = _gl.getUniformLocation(_glProgram, 'u_PVMMatrix'),
         _glProgram.customAttribs.u_NormalMatrixRef = _gl.getUniformLocation(_glProgram, 'u_NormalMatrix'),
 
-
         _glProgram.customAttribs.u_AmbientColourRef = _gl.getUniformLocation(_glProgram, 'u_AmbientColour'),
         _glProgram.customAttribs.u_LightingDirectionRef = _gl.getUniformLocation(_glProgram, 'u_LightingDirection'),
         _glProgram.customAttribs.u_DirectionalColourRef = _gl.getUniformLocation(_glProgram, 'u_DirectionalColour');
 
-
     _glProgram.customAttribs.eyePosition = vec3.fromValues(0, 0, 5);
     _glProgram.customAttribs.centerPoint = vec3.fromValues(0, 0, -50);
-
 
     var perspectiveMatrix = mat4.create(), // get the identity matrix
         viewMatrix = mat4.create(),
         modelMatrix = mat4.create(),
         PVMMatrix = mat4.create();
-
 
     mat4.perspective(perspectiveMatrix, glMatrix.toRadian(45.0), canvasModalWidget.getGLViewportAspectRatio(), 1, 1000);
     mat4.lookAt(viewMatrix, _glProgram.customAttribs.eyePosition, _glProgram.customAttribs.centerPoint, vec3.fromValues(0, 1, 0));
@@ -435,7 +407,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
     return n;
   }
 
-
   ////////////////////////////////////////////////////////////////////////////////////////
   // Game object
   ////////////////////////////////////////////////////////////////////////////////////////
@@ -444,10 +415,14 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         __DIRECTIONS = {NORTH: 2, EAST: 4, SOUTH: 8, WEST: 16, NONE: 0},
         __game = this,
         __eventCallbacks = {
-          gameWin: function(){},
-          gamePausedState: function(){},
-          ballWillRebound: function() {},
-          ballRebound: function(){}
+          gameWin: function() {
+          },
+          gamePausedState: function() {
+          },
+          ballWillRebound: function() {
+          },
+          ballRebound: function() {
+          }
         },
         __map = null,
         __players = [],
@@ -469,7 +444,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         __ballVelocityPercentageRangeFn = function() {
           var range = [1, 2];
 
-          return  [
+          return [
             Math.max(Math.random() * range[1], range[0]),
             Math.max(Math.random() * range[1], range[0])
           ];
@@ -557,12 +532,10 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
           ___paddleDimensions = {x: 0.5, y: 0.05, z: 0.1},
           ___name = name || 'Anonymous';
 
-
       function ___init() {
         ___paddle = new _Quad(___paddleDimensions.x, ___paddleDimensions.y, ___paddleDimensions.z);
         ___paddle.translate(___playerPosition.x, ___playerPosition.y, ___playerPosition.z);
       }
-
 
       function ___draw() {
         ___paddle.draw();
@@ -577,7 +550,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         if (___movingDirection === __DIRECTIONS.NONE) {
           return;
         }
-
 
         switch (___movingDirection) {
           case __DIRECTIONS.EAST:
@@ -610,22 +582,20 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
         ___paddle.translate(distance, 0, 0);
 
-
       }
 
       function ___setDirection(direction) {
         ___movingDirection = direction;
       }
 
-
       ___init();
 
       // __Player Public API
-      ___player.getScore = function () {
+      ___player.getScore = function() {
         return ___score;
       };
 
-      ___player.setScore = function (score) {
+      ___player.setScore = function(score) {
         ___score = score;
       };
 
@@ -642,30 +612,29 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         return ___name;
       };
 
-      ___player.setColour = function (r, g, b) {
+      ___player.setColour = function(r, g, b) {
         ___paddle.setColour(r, g, b, 1);
         return this;
       };
 
-      ___player.getPosition = function () {
+      ___player.getPosition = function() {
         return ___playerPosition;
       };
 
-      ___player.getDirection = function () {
+      ___player.getDirection = function() {
         return ___movingDirection;
       };
 
-
-      ___player.getDimensions = function () {
+      ___player.getDimensions = function() {
         return ___paddleDimensions;
       };
 
-      ___player.setVelocityPercentage = function (velocityPercentage) {
+      ___player.setVelocityPercentage = function(velocityPercentage) {
         ___velocity.x = (velocityPercentage * VELOCITY.x) * (___velocity.x < 0 ? -1 : 1);
         return this;
       };
 
-      ___player.isHuman = function () {
+      ___player.isHuman = function() {
         return ___playerType === __Player.prototype.PLAYER_TYPE.HUMAN
       };
 
@@ -673,7 +642,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
     // Because I felt guilty for not using a prototype anywhere...
     __Player.prototype.PLAYER_TYPE = {ROBOT: 0, HUMAN: 1};
-
 
     ///////////////////////////////////////////////////////////////////////////////
     // __Ball encapsulates our player (essentially a sphere...)
@@ -686,12 +654,12 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
           ___ballPosition = position || new __Position(),
           ___ballBoundingRect = boundingRect,
           ___velocity = {x: BALL_VELOCITY, y: BALL_VELOCITY},
+          ___velocityPercentages = {x: 1, y: 1},
           ___movingDirection = __DIRECTIONS.NONE,
           ___radius = 0.1,
           ___audioCounter = 0,
           ___isSoundOn = __isGameSoundOn,
           ___audioHandles = [new Audio('audio/ball/ping-ball-0.mp3'), new Audio('audio/ball/ping-ball-1.mp3')];
-
 
       function ___init() {
         ___ball = new _Sphere(___radius);
@@ -702,15 +670,12 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         ___ball.draw();
       }
 
-
       // update the ball's position is 3D Space based off the delta time in milliseconds
       function ___update(tickDeltaMS) {
-
 
         if (___movingDirection === __DIRECTIONS.NONE) {
           return;
         }
-
 
         var distanceX = tickDeltaMS * ___velocity.x;
         var distanceY = tickDeltaMS * ___velocity.y;
@@ -721,10 +686,8 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         // used to update the ball's current direction
         var newDirection = __DIRECTIONS.NONE;
 
-
         //console.log('x ', newXPosition, ___ballBoundingRect.x2);
         //console.log('y' , newYPosition, ___ballBoundingRect.y2);
-
 
         // don't let the ball fall out of our bounding rect's X axis
         if (newXPosition < -___ballBoundingRect.x2 || newXPosition > ___ballBoundingRect.x2) {
@@ -749,7 +712,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
           //console.log('east')
         }
 
-
         // merge the NORTH/SOUTH Directional bit in our resultant direction variable
         if (___velocity.y < 0) {
           newDirection |= __DIRECTIONS.SOUTH;
@@ -760,15 +722,12 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
           //console.log('north')
         }
 
-
         ___movingDirection = newDirection;
-
 
         ___ballPosition.x += distanceX;
         ___ballPosition.y += distanceY;
 
         ___ball.translate(distanceX, distanceY, 0);
-
 
       }
 
@@ -793,7 +752,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
       function ___makeNoise() {
 
-        if (! ___isSoundOn) {
+        if (!___isSoundOn) {
           return;
         }
 
@@ -804,7 +763,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
       ___init();
 
-
       // __Ball Public API
       this.draw = ___draw;
       this.update = ___update;
@@ -814,32 +772,36 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         ___isSoundOn = isOn === true ? true : false;
       };
 
-      this.setVelocityXYPercentage = function (vXPercentage, vYPercentage) {
+      this.setVelocityXYPercentage = function(vXPercentage, vYPercentage) {
         ___velocity.x = BALL_VELOCITY * vXPercentage;
         ___velocity.y = BALL_VELOCITY * vYPercentage * (___velocity.y < 0 ? -1 : 1);
+        ___velocityPercentages = {x: vXPercentage, y: vYPercentage};
       };
 
-      this.getPosition = function () {
+      this.getVelocityPercentages = function() {
+        return ___velocityPercentages;
+      };
+
+      this.getPosition = function() {
         return ___ballPosition;
       };
 
-      this.getDirection = function () {
+      this.getDirection = function() {
         return ___movingDirection;
       };
 
-      this.getRadius = function () {
+      this.getRadius = function() {
         return ___radius;
       };
 
-      this.getBoundingRect = function () {
+      this.getBoundingRect = function() {
         return ___ballBoundingRect;
       };
 
-      this.rebound = function () {
+      this.rebound = function() {
         ___velocity.y = -___velocity.y;
         ___makeNoise();
       };
-
 
       return this;
     }
@@ -856,7 +818,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         var wallDimensions = {x: 0.05, y: 2, z: 0.1},
             wallColour = {r: 0.4, g: 0.4, b: 0.5},
             translate = {x: 2.6, y: 0, z: 0};
-
 
         ___leftWall = new _Quad(wallDimensions.x, wallDimensions.y, wallDimensions.z);
         ___leftWall
@@ -878,7 +839,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
       }
 
-
       ___init();
 
       // __Map public API
@@ -888,11 +848,9 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
       return this;
     }
 
-
     function __setGamePauseStatus(state, shouldShowTitleScreen) {
       var newGameStatus = (state === true ? __GAME_STATES.PAUSED : __GAME_STATES.RUNNING),
           isPaused = newGameStatus === __GAME_STATES.PAUSED;
-
 
       if (newGameStatus === __gameStatus) {
         return;
@@ -917,7 +875,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
     function __isGamePaused() {
       return __getGameStatus() === __GAME_STATES.PAUSED;
     }
-
 
     ///////////////////////////////////////////////////////////////////////////
     // __initGame() does some initial work to set some variables and bind
@@ -954,7 +911,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
       // create the Map object
       __map = new __Map();
 
-
       // create the Ball object
       __ball = new __Ball(null, new __Rect(0, 0, 2.5, 2));
 
@@ -967,7 +923,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
       // make note of the human player
       __thePlayer = __players[0];
-
 
       // using bitwise ORs to be able to easily evaluate the direction
       // the ball is moving in
@@ -1000,7 +955,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
           playerScore++;
         }
 
-
         playerScores.push(playerScore);
 
       }
@@ -1028,7 +982,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
       //__showTitleScreen();
 
     }
-
 
     ///////////////////////////////////////////////////////////////////////////
     // __rotateMap() moves and rotates our camera view based on keyboard
@@ -1059,7 +1012,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         //console.log(_glProgram.customAttribs.eyePosition);
       }
 
-
       mat4.lookAt(viewMatrix, _glProgram.customAttribs.eyePosition, _glProgram.customAttribs.centerPoint, vec3.fromValues(0, 1, 0));
       _glProgram.customAttribs.viewMatrix = viewMatrix;
 
@@ -1075,7 +1027,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
           __window = $(window);
 
       __window
-          .on(KEY_PRESS_EVENT, function (event) {
+          .on(KEY_PRESS_EVENT, function(event) {
             if (event.which === 82 || event.which === 91) {
               return;
             }
@@ -1087,7 +1039,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
           });
 
       __window
-          .on(KEY_RELEASE_EVENT, function (event) {
+          .on(KEY_RELEASE_EVENT, function(event) {
 
             if (event.which === 82 || event.which === 91) {
               return;
@@ -1101,7 +1053,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
     }
 
-
     ///////////////////////////////////////////////////////////////////////////
     // __processInput() does the work of updating a game objects based on our
     // user's input.
@@ -1111,7 +1062,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
           zInc = 0.05;
       //console.log(_keyPressed);
 
-
       for (var keyCode in __keyPressed) {
 
         if (!__keyPressed[keyCode]) {
@@ -1119,7 +1069,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         }
 
         var key = parseInt(keyCode);
-
 
         switch (key) {
           case 87: // rotate up keys = (w, W)
@@ -1202,7 +1151,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     function __tick() {
 
-
       var player = null,
           count = 0,
           tickTime = (new Date()).getTime(),
@@ -1210,7 +1158,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
           playerDimensions = __thePlayer.getDimensions(),
           ballRadius = __ball.getRadius(),
           ballBoundingRect = __ball.getBoundingRect();
-
 
       if (__lastDrawTime === 0) {
         __lastDrawTime = tickTime;
@@ -1228,17 +1175,13 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         __lastFrameDisplayDeltaTime = 0;
       }
 
-
       //console.log(__lastFrameDisplayDeltaTime)
-
 
       // Clear the color and depth buffer because now we are dealing with perspective and camera space.
       // and we want everything to look natural...
       _gl.clear(_gl.COLOR_BUFFER_BIT | _gl.DEPTH_BUFFER_BIT);
 
-
       __processInput();
-
 
       // if the game hasn't been paused...
       if (!__isGamePaused()) {
@@ -1249,7 +1192,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
         // get the new ball's position and direction
         var ballPosition = __ball.getPosition(),
             ballDirection = __ball.getDirection();
-
 
         for (count = 0; count < __players.length; count++) {
           player = __players[count];
@@ -1303,7 +1245,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
               player.setDirection(__DIRECTIONS.WEST);
             }
 
-             
           }
 
           // used to calculate who's potentially going to hit the ball
@@ -1361,7 +1302,6 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
             __ball.rebound();
             __ball.update(dt);
 
-
           }
           else if (ballYToHit <= -ballBoundingRect.y2 || ballYToHit >= ballBoundingRect.y2) {  // if the ball's position is out of it's y-bound (for it's bounding rectangle) somebody lost
 
@@ -1378,9 +1318,7 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
 
         }
 
-
       }
-
 
       // draw the game objects...
       __map.draw();
@@ -1418,6 +1356,10 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
       return __game;
     };
 
+    __game.getBallVelocityPercentages = function() {
+      return __ball.getVelocityPercentages();
+    };
+
     __game.setBallVelocityPercentageRangeFn = function(velocityFn) {
       if (typeof velocityFn === 'function') {
         __ballVelocityPercentageRangeFn = velocityFn;
@@ -1448,10 +1390,8 @@ $app.Pong = function (canvasModalWidget, webGLDrawUtilities) {
     };
 
   }
+
   // End of Game Class
-
-
-
 
   // start this demo up!
   _init();
