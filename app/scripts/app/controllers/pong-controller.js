@@ -31,7 +31,7 @@
         _ctrl.isSoundOn = true;
 
         _ctrl.playerWinHistory = _playerWinHistory;
-        _ctrl.playCount = 50;
+        _ctrl.playCount = 25;
 
         _ctrl.players = [
           new VisPlayer('Duke')

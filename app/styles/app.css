@@ -528,3 +528,17 @@ rect.bar {
 .legend-option .legend-swatch.luck {
     background-color: rgb(140, 86, 75);
 }
+
+/* Heatmap */
+circle.bubble {
+    stroke-width: 2px;
+}
+
+circle.arnold {
+    stroke: rgb(255, 0, 0);
+
+}
+
+circle.duke {
+    stroke: rgb(0, 0, 255);
+}

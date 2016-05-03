@@ -57,16 +57,18 @@
               groups.enter().append('g')
                   .classed('player-history-col', true);
 
-              var bars = groups.selectAll('circle.bar')
+              var bars = groups.selectAll('circle.bubble')
                   .data(function (d) {
                     return d;
                   });
 
-              var lastX = {};
+              var lastX = {},
+                  radiusFn = function(d) { return  d.value * 25; };
+
               bars.enter()
                   .append('circle')
-                  .classed('bar', true)
-                  .style( 'fill-opacity', 0)
+                  .attr('class', function(d) { return d.playerName.toLowerCase() + ' bubble'; })
+                  .style({'opacity': 0})
                   .attr({
                     'r': 0,
                     'cx': 0,
@@ -84,15 +86,21 @@
                     if (! angular.isDefined(lastX[d.colIndex][d.rowIndex])) {
                       lastX[d.colIndex][d.rowIndex] = 0;
                     }
-                    lastX[d.colIndex][d.rowIndex] +=  d.colIndex * _heatmap._xScale.rangeBand() + d.value*20;
+
+                    // Add radius to the mix
+                    lastX[d.colIndex][d.rowIndex] +=  5 + d.colIndex * _heatmap._xScale.rangeBand()/2 + radiusFn(d);
                     return lastX[d.colIndex][d.rowIndex];
                   })
                   .attr('cy', function(d) { return d.rowIndex * _heatmap._yScale.rangeBand() + _heatmap.OFFSET; })
-                  .attr('r', function(d) {  return _heatmap._xScale.rangeBand()/2 + d.value*20; })
-                  //.attr('r', _heatmap._yScale.rangeBand()/2)
-                  .style({'fill': function (d, i) {
-                    return _heatmap._colourMap[i];
-                  }, 'fill-opacity': function(d) {return d.value; }});
+                  .attr('r', function(d) {  return radiusFn(d); })
+                  .style({
+                    'fill': function (d, i) {
+                      return _heatmap._colourMap[i];
+                    },
+                    'opacity': function(d) {
+                      return d.value;
+                    }
+                  });
 
 
               bars.exit().remove();
@@ -117,7 +125,8 @@
               var d = [];
 
               for (var i = 0; i < playerHistory.length; i++) {
-                var playCharacteristics = playerHistory[i].characteristics();
+                var playerName =  playerHistory[i].name(),
+                    playCharacteristics = playerHistory[i].characteristics();
 
                 var attr = [],
                     j = 0;
@@ -130,7 +139,13 @@
 
                   var attribute = playCharacteristics[characteristic];
 
-                  attr.push({attr: attribute.attr, value: attribute.value, rowIndex: j++, colIndex: i});
+                  attr.push({
+                    playerName: playerName,
+                    attr: attribute.attr,
+                    value: attribute.value,
+                    rowIndex: j++,
+                    colIndex: i
+                  });
 
                 }
 
