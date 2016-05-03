@@ -38,13 +38,18 @@
               .on('playerWin', winFn)
               .setTaunts( [
                 'audio/duke/equal-opportunity.mp3',
+                'audio/duke/postal.mp3',
                 'audio/duke/pissed-off.mp3',
-                'audio/duke/wasting-time.mp3',
-                'audio/duke/wasted.mp3'
+                'audio/duke/wasted.mp3',
+                'audio/duke/gun.mp3'
               ])
-              .setWinTaunts(['audio/duke/rest-in-pieces.mp3'])
+              .setWinTaunts([
+                'audio/duke/rest-in-pieces.mp3',
+                'audio/duke/wasting-time.mp3',
+                'audio/duke/king.mp3',
+                'audio/duke/say-hello.mp3'
+              ])
           ,
-
           new VisPlayer('Arnold')
               .on('playerWin', winFn)
               .setTaunts(
@@ -52,9 +57,15 @@
                     'audio/arnold/daddy.mp3',
                     'audio/arnold/deep.mp3',
                     'audio/arnold/surprise.mp3',
+                    'audio/arnold/haha.mp3',
                     'audio/arnold/knowu.mp3'
                   ])
-              .setWinTaunts(['audio/arnold/urfired.mp3'])
+              .setWinTaunts([
+                'audio/arnold/urfired.mp3',
+                'audio/arnold/choppa.mp3',
+                'audio/arnold/urterminated.mp3',
+                'audio/arnold/wontbeback.mp3'
+              ])
         ];
 
 
@@ -150,7 +161,7 @@
             _eventCallbacks['playerWin'].call(_visPlayer, _visPlayer);
 
             if (_winTaunts.length) {
-              _playFile(_winTaunts[0]);
+              _playFile(_winTaunts[Math.round(Math.random() * (_winTaunts.length - 1))]);
             }
 
             return _visPlayer;
