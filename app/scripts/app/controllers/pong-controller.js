@@ -36,23 +36,25 @@
         _ctrl.players = [
           new VisPlayer('Duke')
               .on('playerWin', winFn)
+              .setTaunts( [
+                'audio/duke/equal-opportunity.mp3',
+                'audio/duke/pissed-off.mp3',
+                'audio/duke/wasting-time.mp3',
+                'audio/duke/wasted.mp3'
+              ])
+              .setWinTaunts(['audio/duke/rest-in-pieces.mp3'])
+          ,
+
+          new VisPlayer('Arnold')
+              .on('playerWin', winFn)
               .setTaunts(
                   [
                     'audio/arnold/daddy.mp3',
                     'audio/arnold/deep.mp3',
                     'audio/arnold/surprise.mp3',
                     'audio/arnold/knowu.mp3'
-                  ]),
-
-          new VisPlayer('Arnold')
-              .on('playerWin', winFn)
-              .setTaunts(
-                  [
-                    'audio/duke/equal-opportunity.mp3',
-                    'audio/duke/pissed-off.mp3',
-                    'audio/duke/wasting-time.mp3',
-                    'audio/duke/wasted.mp3'
                   ])
+              .setWinTaunts(['audio/arnold/urfired.mp3'])
         ];
 
 
@@ -83,6 +85,7 @@
                 }
               },
               _tauntsAudioList = [],
+              _winTaunts = [],
               _audioResourceHandles = {},
               _lastTauntChosenIndex = null,
               _characteristicsCopy;
@@ -132,11 +135,23 @@
             _characteristicsCopy = _characteristics.slice();
           }
 
+          function _playFile(audioFile) {
+            if (! angular.isDefined(_audioResourceHandles[audioFile])) {
+              _audioResourceHandles[audioFile] = new Audio(audioFile);
+            }
+
+            _audioResourceHandles[audioFile].play();
+          }
+
           _visPlayer.won = function() {
 
             _updateCharacteristics(true);
 
             _eventCallbacks['playerWin'].call(_visPlayer, _visPlayer);
+
+            if (_winTaunts.length) {
+              _playFile(_winTaunts[0]);
+            }
 
             return _visPlayer;
           };
@@ -162,7 +177,15 @@
             return _visPlayer;
           };
 
-          _visPlayer.taunted = function() {
+          _visPlayer.setWinTaunts = function(taunts) {
+            if (angular.isArray(taunts)) {
+              _winTaunts = taunts;
+            }
+
+            return _visPlayer;
+          };
+
+          _visPlayer.taunt = function() {
 
             if (_tauntsAudioList.length === 0) {
               return;
@@ -178,11 +201,7 @@
 
             var audioFile = _tauntsAudioList[tauntIndex];
 
-            if (! angular.isDefined(_audioResourceHandles[audioFile])) {
-              _audioResourceHandles[audioFile] = new Audio(audioFile);
-            }
-
-            _audioResourceHandles[audioFile].play();
+            _playFile(audioFile);
           };
 
           _visPlayer.characteristics = function() {

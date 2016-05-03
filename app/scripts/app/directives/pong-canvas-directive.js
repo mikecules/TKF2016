@@ -578,7 +578,7 @@
                     game.pause();
 
                     if (pongCtrl.isSoundOn === true) {
-                      defendingPlayer.taunted();
+                      attackingPlayer.taunt();
                     }
 
                     scope.$apply(function() {
