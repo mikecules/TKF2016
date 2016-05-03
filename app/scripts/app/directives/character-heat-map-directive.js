@@ -22,6 +22,7 @@
               _heatmap._width = width || ($element.width());
               _heatmap._height = height || ($element.parent().height());
               _heatmap._padding = padding || 0;
+              _heatmap._lastX = {};
 
               _heatmap._containerSelection = d3.select(domContainer);
               _heatmap._svg = _heatmap._containerSelection.append('svg')
@@ -57,15 +58,15 @@
               groups.enter().append('g')
                   .classed('player-history-col', true);
 
-              var bars = groups.selectAll('circle.bubble')
+              var circles = groups.selectAll('circle.bubble')
                   .data(function (d) {
                     return d;
                   });
 
-              var lastX = {},
-                  radiusFn = function(d) { return  d.value * 25; };
 
-              bars.enter()
+              var radiusFn = function(d) { return  d.value * _heatmap._yScale.rangeBand() / 3; };
+
+              circles.enter()
                   .append('circle')
                   .attr('class', function(d) { return d.playerName.toLowerCase() + ' bubble'; })
                   .style({'opacity': 0})
@@ -80,16 +81,26 @@
                   })
                   .attr('cx', function(d) {
 
-                    if (! angular.isDefined(lastX[d.colIndex])) {
-                      lastX[d.colIndex] = {};
-                    }
-                    if (! angular.isDefined(lastX[d.colIndex][d.rowIndex])) {
-                      lastX[d.colIndex][d.rowIndex] = 0;
+                    if (! angular.isDefined(_heatmap._lastX[d.colIndex])) {
+                      _heatmap._lastX[d.colIndex] = {};
                     }
 
-                    // Add radius to the mix
-                    lastX[d.colIndex][d.rowIndex] +=  5 + d.colIndex * _heatmap._xScale.rangeBand()/2 + radiusFn(d);
-                    return lastX[d.colIndex][d.rowIndex];
+                    if (! angular.isDefined(_heatmap._lastX[d.colIndex][d.rowIndex])) {
+
+                      if (d.colIndex === 0) {
+                        _heatmap._lastX[d.colIndex][d.rowIndex] = 0;
+                      }
+                      else {
+                        _heatmap._lastX[d.colIndex][d.rowIndex] = _heatmap._lastX[d.colIndex - 1][d.rowIndex];
+                      }
+                    }
+
+                    var x = _heatmap._lastX[d.colIndex][d.rowIndex] + 4;
+
+                    _heatmap._lastX[d.colIndex][d.rowIndex] +=  radiusFn(d) * 2;
+
+
+                    return  x;//_heatmap._lastX[d.colIndex][d.rowIndex];
                   })
                   .attr('cy', function(d) { return d.rowIndex * _heatmap._yScale.rangeBand() + _heatmap.OFFSET; })
                   .attr('r', function(d) {  return radiusFn(d); })
@@ -102,11 +113,28 @@
                     }
                   });
 
+              if (! circles.empty()) {
 
-              bars.exit().remove();
+                d3.timer(function() {
+                  _heatmap._tick(circles, +parseFloat(_heatmap._yScale.rangeBand() * 0.1).toFixed(2));
+                });
+              }
+
+
+              circles.exit().remove();
               groups.exit().remove();
 
               return _heatmap;
+
+            };
+
+            Heatmap.prototype._tick = function(circles, amplitude) {
+
+              var t = +(new Date());
+
+              circles.attr('transform', function(d) {
+                    return 'translate(' + [ d.value * amplitude, Math.sin(t * d.value / 1000) * amplitude] + ')';
+                  });
 
             };
 
@@ -188,7 +216,11 @@
 
             var _heatmap = null;
 
+
+            $element.parent().height($(window).height() - $element.parent().offset().top - 30);
+
             _init($element[0]);
+
 
           }
         };

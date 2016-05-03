@@ -291,7 +291,8 @@ g.map-canvas.on-gpu {
 /* PONG Styles */
 /* ********************************* */
 .row {
-    display:block;
+    margin: 0 auto;
+    display: block;
     width: 100%;
 }
 
