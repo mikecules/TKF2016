@@ -121,7 +121,7 @@
                     return i / _barchart._data.length * 1000;
                   })
                   .attr('transform', function (d, i) {
-                    return 'translate(' + _barchart._xScale(i) + ', ' + (_barchart._height - _barchart._yScale(d.value) + 10) + ')';
+                    return 'translate(' + _barchart._xScale(i) + ', ' + (_barchart._height - _barchart._yScale(d.value) + 15) + ')';
                   });
 
               var labels = groups.selectAll('text')
