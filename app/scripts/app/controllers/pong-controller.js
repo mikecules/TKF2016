@@ -81,6 +81,7 @@
                 playerLose: function() {}
               },
               _tauntsAudioList = [],
+              _lastTauntChosenIndex = null,
               _characteristicsCopy;
 
 
@@ -201,7 +202,15 @@
               return;
             }
 
-            var audioFile = _tauntsAudioList[Math.round(Math.random() * (_tauntsAudioList.length - 1))];
+            var tauntIndex = Math.round(Math.random() * (_tauntsAudioList.length - 1));
+
+            while (tauntIndex === _lastTauntChosenIndex) {
+              tauntIndex = Math.round(Math.random() * (_tauntsAudioList.length - 1));
+            }
+
+            _lastTauntChosenIndex = tauntIndex;
+
+            var audioFile = _tauntsAudioList[tauntIndex];
             var audio = new Audio(audioFile);
             audio.play();
           };
