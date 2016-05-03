@@ -3,7 +3,7 @@
   'use strict';
 
   angular.module('app')
-    .controller('mainCtrl', ['$scope', function($scope) {
+    .controller('mainCtrl', ['$scope', '$rootScope', function($scope, $rootScope) {
 
       var _ctrl = this,
           _mapData = {},
@@ -65,6 +65,10 @@
       setTimeout(function() {
         jQuery('.world-map-container > h1').addClass('intro-fade');
       }, 2000);
+
+      $rootScope.route = {
+        map: true
+      };
 
   }]);
 })();

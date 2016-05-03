@@ -136,6 +136,14 @@ g.map-canvas.on-gpu {
     stroke: #369bff;
 }
 
+.map-vis {
+    background-color: #000;
+}
+
+.pong-vis {
+    background-color: #eee;
+}
+
 .world-map-vis {
     position: relative;
 }

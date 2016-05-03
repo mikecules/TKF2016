@@ -3,9 +3,13 @@
   'use strict';
 
   angular.module('app')
-      .controller('pongCtrl', function() {
+      .controller('pongCtrl', ['$rootScope', function($rootScope) {
         var _ctrl = this,
             _playerWinHistory = [];
+
+        $rootScope.route = {
+          pong: true
+        };
 
         var winFn = function(p) {
           var player = {};
@@ -323,5 +327,5 @@
 
           _init();
         }
-      });
+      }]);
 })();
