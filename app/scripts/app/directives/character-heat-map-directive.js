@@ -23,6 +23,8 @@
               _heatmap._height = height || ($element.parent().height());
               _heatmap._padding = padding || 0;
               _heatmap._lastX = {};
+              _heatmap._circles = null,
+              _heatmap._isAnimating = false;
 
               _heatmap._containerSelection = d3.select(domContainer);
               _heatmap._svg = _heatmap._containerSelection.append('svg')
@@ -58,7 +60,7 @@
               groups.enter().append('g')
                   .classed('player-history-col', true);
 
-              var circles = groups.selectAll('circle.bubble')
+              _heatmap._circles = groups.selectAll('circle.bubble')
                   .data(function (d) {
                     return d;
                   });
@@ -66,7 +68,7 @@
 
               var radiusFn = function(d) { return  d.value * _heatmap._yScale.rangeBand() / 3; };
 
-              circles.enter()
+              _heatmap._circles .enter()
                   .append('circle')
                   .attr('class', function(d) { return d.playerName.toLowerCase() + ' bubble'; })
                   .style({'opacity': 0})
@@ -113,27 +115,28 @@
                     }
                   });
 
-              if (! circles.empty()) {
+              if ( ! _heatmap._isAnimating && ! _heatmap._circles.empty()) {
 
-                d3.timer(function() {
-                  _heatmap._tick(circles, +parseFloat(_heatmap._yScale.rangeBand() * 0.1).toFixed(2));
+                _heatmap._isAnimating = true;
+                var amplitude = +parseFloat(_heatmap._yScale.rangeBand() * 0.1).toFixed(2);
+
+                d3.timer(function(t) {
+                  _heatmap._tick(t, amplitude);
                 });
               }
 
 
-              circles.exit().remove();
+              _heatmap._circles .exit().remove();
               groups.exit().remove();
 
               return _heatmap;
 
             };
 
-            Heatmap.prototype._tick = function(circles, amplitude) {
+            Heatmap.prototype._tick = function(t, amplitude) {
 
-              var t = +(new Date());
-
-              circles.attr('transform', function(d) {
-                    return 'translate(' + [ d.value * amplitude, Math.sin(t * d.value / 1000) * amplitude] + ')';
+              _heatmap._circles.attr('transform', function(d) {
+                    return 'translate(' + [d.value * amplitude, Math.sin(t * d.value / 500) * amplitude] + ')';
                   });
 
             };
